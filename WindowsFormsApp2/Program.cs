@@ -17,7 +17,15 @@ namespace WindowsFormsApp2
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Main_UI());
+            Form form = new Main_UI();
+            Application.Run(form);
+
+            while (true) {
+
+                form.set_sec("00:00");
+                form.Refresh();
+            }
+            
         }
     }
 }
