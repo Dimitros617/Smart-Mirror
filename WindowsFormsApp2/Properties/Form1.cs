@@ -30,27 +30,24 @@ namespace WindowsFormsApp2.Properties
 
             this.cas_sec.Location = new Point(cas.Location.X+260, 68);
 
+            //-------------- set cas
 
-                //-------------- set cas
+            string time = String.Format("{0:00}", DateTime.Now.Hour) + ":" + String.Format("{0:00}", DateTime.Now.Minute); ;
 
-                string time = String.Format("{0:t}", DateTime.Now);
+            cas.Text = time;
+            cas_sec.Text = string.Format("{0:00}", DateTime.Now.Second);
 
-                cas.Text = time;
-                cas_sec.Text = string.Format("{0:00}", DateTime.Now.Second);
+            //--------------
 
-                //--------------
+            Console.WriteLine("-------------NECO---------------");
+            Console.WriteLine();
+            Console.WriteLine(CheckForInternetConnection());
 
-                Console.WriteLine("-------------NECO---------------");
-                Console.WriteLine();
-                Console.WriteLine(CheckForInternetConnection());
-
-                cas.Refresh();
-
+            timer1.Start();
+            cas.Refresh();
         }
 
-        private void cas_Click(object sender, EventArgs e)
-        {
-            
+        private void cas_Click(object sender, EventArgs e){
         }
 
         public static bool CheckForInternetConnection()
@@ -69,20 +66,13 @@ namespace WindowsFormsApp2.Properties
             }
         }
 
-        private void cas_sec_Click(object sender, EventArgs e)
-        {
-
+        private void cas_sec_Click(object sender, EventArgs e){
         }
 
-        public void set_cas_sec(String s) {
-
-            cas_sec.Text = s;
-        }
-
-        public void set_cas(String s)
+        private void timer1_Tick(object sender, EventArgs e)
         {
-
-            cas.Text = s;
+            cas_sec.Text = string.Format("{0:00}", DateTime.Now.Second);
+            cas_sec.Refresh();
         }
     }
 }

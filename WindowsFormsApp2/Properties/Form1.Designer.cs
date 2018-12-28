@@ -28,8 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.cas = new System.Windows.Forms.Label();
             this.cas_sec = new System.Windows.Forms.Label();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // cas
@@ -55,6 +57,10 @@
             this.cas_sec.TabIndex = 2;
             this.cas_sec.Text = "00";
             // 
+            // timer1
+            // 
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
             // Main_UI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -75,5 +81,6 @@
         #endregion
         private System.Windows.Forms.Label cas;
         private System.Windows.Forms.Label cas_sec;
+        private System.Windows.Forms.Timer timer1;
     }
 }

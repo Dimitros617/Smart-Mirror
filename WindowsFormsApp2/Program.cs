@@ -19,12 +19,6 @@ namespace WindowsFormsApp2
             Application.SetCompatibleTextRenderingDefault(false);
             Form form = new Main_UI();
             Application.Run(form);
-
-            while (true) {
-
-                form.set_sec("00:00");
-                form.Refresh();
-            }
             
         }
     }
