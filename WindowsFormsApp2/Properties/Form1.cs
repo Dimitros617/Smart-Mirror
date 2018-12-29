@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
 using System.Collections;
+using System.Drawing.Imaging;
 
 namespace WindowsFormsApp2.Properties
 {
@@ -21,7 +22,12 @@ namespace WindowsFormsApp2.Properties
         private int timer;
         private int NotifCounter;
         LinkedList<Label> Notifikace;
-
+        private double lastConnection;
+        private Boolean lastConnectionBoolean;
+        private String[] mesice = new String[12] { "Leden", "Únor", "Březen", "Duben", "Květen", "Červen", "Červenec", "Srpen", "Září", "Říjen", "Listopad", "Prosinec" };
+        private String[] dnyEn = new String[7] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
+        private String[] dnyCz = new String[7] { "Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek", "Sobota", "Neděle" };
+        WeatherData TeplotaData;
 
         public Main_UI()
         {
@@ -38,14 +44,14 @@ namespace WindowsFormsApp2.Properties
 
         private void Form1_Paint(object sender, PaintEventArgs e) {
 
-            Pen pen = new Pen(Color.White, 5);
+            Pen pen = new Pen(Color.White, 2);
 
             int yposun = 110;
             int xposun = 400;
-            Point p1 = new Point(cas.Location.X, cas.Location.Y + yposun);
+            Point p1 = new Point(cas.Location.X + 20, cas.Location.Y + yposun);
             Point p2 = new Point(cas.Location.X + xposun, cas.Location.Y + yposun);
 
-            e.Graphics.DrawLine(pen, p1, p2);
+          //  e.Graphics.DrawLine(pen, p1, p2);
         }
 
         private void Main_UI_Load(object sender, EventArgs e)
@@ -59,12 +65,31 @@ namespace WindowsFormsApp2.Properties
             this.Location = new Point(0, 0);
             this.Size = new Size(s, v);
 
-            this.cas_sec.Location = new Point(cas.Location.X+260, 68);
+            this.cas_sec.Location = new Point(cas.Location.X+260, cas.Location.Y + 10);
 
-            //-------------- set cas
+            //-------------- set cas a datum
 
             cas.Text = String.Format("{0:00}", DateTime.Now.Hour) + ":" + String.Format("{0:00}", DateTime.Now.Minute); ;
             cas_sec.Text = string.Format("{0:00}", DateTime.Now.Second);
+
+            DateMonth.Text = DateTime.Now.Day + ". " + mesice[DateTime.Now.Month-1];
+            DateDayOfWeek.Text = "" + dnyCz[IndexOf(dnyEn, "" + DateTime.Now.DayOfWeek)];
+
+            //-------------- set Teplota
+
+            try
+            {
+                TeplotaData = new WeatherData("Most");
+            }
+            catch
+            {
+                Notify("Nastala chyba při načítání počasí");
+                
+            }
+            
+
+
+            
 
             //-------------- set pic internet connection
 
@@ -74,29 +99,28 @@ namespace WindowsFormsApp2.Properties
             {
                 if (CheckForInternetConnection())
                 {
-                      image = Image.FromFile(@"..\\Image\\online.png");
-                   // image = Image.FromFile("online.png");
+                    lastConnectionBoolean = true;
+                    image = Image.FromFile(@"..\\Image\\online.png");    
                 }
                 else
                 {
+                    lastConnectionBoolean = false;
                     image = Image.FromFile(@"..\\Image\\offline.png");
                 }
+
                 OnlineStatus.Image = image;
             }
             catch {
 
-                Console.WriteLine("nebylo možno nalést obrázek pripojení k internetu");
                 Notify("nebylo možno nalést obrázek pripojení k internetu");
             }
-
-            
-
-            
 
             Console.WriteLine("-------------NECO---------------");
             Console.WriteLine();
             Console.WriteLine(CheckForInternetConnection());
 
+            lastConnection = 100.0;
+            
             timer1.Start();
             this.Refresh();
         }
@@ -129,14 +153,28 @@ namespace WindowsFormsApp2.Properties
         private void timer1_Tick(object sender, EventArgs e)
         {
             cas_sec.Text = string.Format("{0:00}", DateTime.Now.Second);
-            cas_sec.Refresh();
-
             cas.Text = String.Format("{0:00}", DateTime.Now.Hour) + ":" + String.Format("{0:00}", DateTime.Now.Minute); ;
-            cas.Refresh();
+            DateMonth.Text = DateTime.Now.Day + ". " + mesice[DateTime.Now.Month - 1];
+            DateDayOfWeek.Text = "" + dnyCz[IndexOf(dnyEn, "" + DateTime.Now.DayOfWeek)];
 
+            //--- Temperature
+
+            if (DateTime.Now.Minute % 5 == 0) // každých 5 min se pokusit o obnovení dat počasí
+                try
+                {
+                    TeplotaData.CheckWeather();
+                }
+                catch
+                {
+                    Notify("Nastala chyba při načítání dat počasí Opětovný pokus za 5 min");
+                }
+
+                TempLabel.Text = "" + (int)(double.Parse(TeplotaData.temp.Replace('.', ',')) - 273.16) + "°";
+                WeatherPic.Image = Image.FromFile(@"..\\Image\\Weather\\" + TeplotaData.icon + ".png");
+
+            //--- Notifikace
 
             if (Notifikace.Count != 0)
-
                 try
                 {
                     foreach (Label label in Notifikace)
@@ -161,6 +199,41 @@ namespace WindowsFormsApp2.Properties
                 catch {
                    // Notify("Chyba při notifikaci");
                 }
+
+            //--- Internet connection
+
+            Image image;
+            Boolean connection;
+
+            try
+            {
+                if (CheckForInternetConnection())
+                {
+                        image = Image.FromFile(@"..\\Image\\online.png");
+                        connection = true;
+                   
+
+                }
+                else
+                {
+                        image = Image.FromFile(@"..\\Image\\offline.png");
+                        connection = false;
+              
+                }
+
+
+
+                OnlineStatus.Image = image;
+                
+            }
+            catch
+            {
+
+                Console.WriteLine("nebylo možno nalést obrázek pripojení k internetu");
+                Notify("nebylo možno nalést obrázek pripojení k internetu");
+            }
+
+            this.Refresh();
         }
 
         private void OnlineStatus_Click(object sender, EventArgs e)
@@ -174,6 +247,8 @@ namespace WindowsFormsApp2.Properties
         }
 
         private void Notify(String s) {
+
+            Console.WriteLine(s);
 
             int locx = Screen.PrimaryScreen.Bounds.Width/2;
             int locy = Notifikace.Count == 0 ? 20 : Notifikace.ElementAt(0).Location.Y + 20;
@@ -191,6 +266,34 @@ namespace WindowsFormsApp2.Properties
 
         }
 
+        private void DateDayOfWeek_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void DateMonth_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private int IndexOf(String[] arr, String value)
+        {
+            for (int i = 0; i < arr.Length; i++)
+            {
+                if (arr[i].Equals(value))
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        private void TempLabel_Click(object sender, EventArgs e)
+        {
+
+        }
+    }
 
     }
-}
+
+
