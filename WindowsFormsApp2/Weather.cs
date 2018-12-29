@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
 using System.Xml;
 
 class WeatherData
@@ -6,7 +8,8 @@ class WeatherData
 
     private string city;
 
-    private const string APIKEY = "9fab2bfceccef749a5781142d869ef68";
+    //private const string APIKEY = "410463b3935acea56c8171825dbb4440";
+    private List<string> APIKEY;
     private string CurrentURL;
 
     string[] weatherData;
@@ -24,6 +27,13 @@ class WeatherData
     public WeatherData(string City)
     {
         city = City.ToLower();
+        APIKEY = new List<string>();
+        APIKEY.Add("9fab2bfceccef749a5781142d869ef68");
+        APIKEY.Add("410463b3935acea56c8171825dbb4440");
+        APIKEY.Add("ea574594b9d36ab688642d5fbeab847e");
+        APIKEY.Add("2bed6eb0dd723dad545805b1ed7c8750");
+        APIKEY.Add("c6ccbb8d29c608a6c3179fd68a6f2fa1");
+
         CheckWeather();
     }
 
@@ -31,7 +41,24 @@ class WeatherData
     {
         using (WebClient client = new WebClient())
         {
-             weatherData = (client.DownloadString("http://api.openweathermap.org/data/2.5/weather?q=" + city + "&APPID=" + APIKEY)).Split('"');
+            Boolean data = false;
+
+            for (int i = 0; i < APIKEY.Count; i++)
+            {
+                try
+                {
+                    weatherData = (client.DownloadString("http://api.openweathermap.org/data/2.5/weather?q=" + city + "&units=metric&APPID=" + APIKEY[i])).Split('"');
+                    data = true;
+                    break;
+                }
+                catch
+                {
+
+                }
+            }
+
+            if(!data)
+                throw new System.ArgumentException("Parameter cannot be null", "original");
         }
         setVar(ref temp, "temp");
         setVar(ref vlhkost, "humidity");

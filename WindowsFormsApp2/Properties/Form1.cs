@@ -10,7 +10,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Threading;
 using System.Collections;
 using System.Drawing.Imaging;
 
@@ -22,12 +21,12 @@ namespace WindowsFormsApp2.Properties
         private int timer;
         private int NotifCounter;
         LinkedList<Label> Notifikace;
-        private double lastConnection;
         private Boolean lastConnectionBoolean;
         private String[] mesice = new String[12] { "Leden", "Únor", "Březen", "Duben", "Květen", "Červen", "Červenec", "Srpen", "Září", "Říjen", "Listopad", "Prosinec" };
         private String[] dnyEn = new String[7] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
-        private String[] dnyCz = new String[7] { "Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek", "Sobota", "Neděle" };
+        private String[] dnyCz = new String[7] { "PONDĚLÍ", "ÚTERÝ", "STŘEDA", "ČTVRTEK", "PÁTEK", "SOBOTA", "NEDĚLE" };
         WeatherData TeplotaData;
+        private int TeplotaLastUpdate;
 
         public Main_UI()
         {
@@ -77,14 +76,32 @@ namespace WindowsFormsApp2.Properties
 
             //-------------- set Teplota
 
+
             try
             {
                 TeplotaData = new WeatherData("Most");
+                TempLabel.Visible = true;
+                WeatherPic.Visible = true;
+                vlhkostLabel.Visible = true;
+                vitrLabel.Visible = true;
+                tlakLabel.Visible = true;
+
+                TempLabel.Text = "" + (int)(double.Parse(TeplotaData.temp.Replace('.', ','))) + "°";
+                WeatherPic.Image = Image.FromFile(@"..\\Image\\Weather\\" + TeplotaData.icon + ".png");
+                vitrLabel.Text = TeplotaData.windSpeed;
+                vlhkostLabel.Text = TeplotaData.vlhkost;
+                tlakLabel.Text = TeplotaData.tlak;
+                TeplotaLastUpdate = DateTime.Now.Minute ;
             }
             catch
             {
                 Notify("Nastala chyba při načítání počasí");
-                
+                TempLabel.Visible = false;
+                WeatherPic.Visible = false;
+                vlhkostLabel.Visible = false;
+                vitrLabel.Visible = false;
+                tlakLabel.Visible = false;
+
             }
             
 
@@ -118,8 +135,6 @@ namespace WindowsFormsApp2.Properties
             Console.WriteLine("-------------NECO---------------");
             Console.WriteLine();
             Console.WriteLine(CheckForInternetConnection());
-
-            lastConnection = 100.0;
             
             timer1.Start();
             this.Refresh();
@@ -154,23 +169,43 @@ namespace WindowsFormsApp2.Properties
         {
             cas_sec.Text = string.Format("{0:00}", DateTime.Now.Second);
             cas.Text = String.Format("{0:00}", DateTime.Now.Hour) + ":" + String.Format("{0:00}", DateTime.Now.Minute); ;
-            DateMonth.Text = DateTime.Now.Day + ". " + mesice[DateTime.Now.Month - 1];
+            DateMonth.Text = DateTime.Now.Day + ". " + mesice[DateTime.Now.Month - 1].ToUpper();
             DateDayOfWeek.Text = "" + dnyCz[IndexOf(dnyEn, "" + DateTime.Now.DayOfWeek)];
 
             //--- Temperature
 
-            if (DateTime.Now.Minute % 5 == 0) // každých 5 min se pokusit o obnovení dat počasí
+            if ((DateTime.Now.Minute - TeplotaLastUpdate) >= 5 && lastConnectionBoolean || (DateTime.Now.Minute - TeplotaLastUpdate) < 0 && lastConnectionBoolean)
+            { // každých 5 min se pokusit o obnovení dat počasí
                 try
                 {
                     TeplotaData.CheckWeather();
+                    TempLabel.Visible = true;
+                    WeatherPic.Visible = true;
+                    vlhkostLabel.Visible = true;
+                    vitrLabel.Visible = true;
+                    tlakLabel.Visible = true;
+
+                    TempLabel.Text = "" + (int)(double.Parse(TeplotaData.temp.Replace('.', ','))) + "°";
+                    WeatherPic.Image = Image.FromFile(@"..\\Image\\Weather\\" + TeplotaData.icon + ".png");
+                    vitrLabel.Text = TeplotaData.windSpeed;
+                    vlhkostLabel.Text = TeplotaData.vlhkost;
+                    tlakLabel.Text = TeplotaData.tlak;
+
+                    TeplotaLastUpdate = DateTime.Now.Minute;
+                    Notify("Počasí bylo úspěšně aktualizováno");
                 }
                 catch
                 {
-                    Notify("Nastala chyba při načítání dat počasí Opětovný pokus za 5 min");
+                    Notify("Nastala chyba při načítání dat počasí Opětovný pokus za 10 min");
+                    TempLabel.Text = "";
+                    TempLabel.Visible = false;
+                    WeatherPic.Visible = false;
+                    vlhkostLabel.Visible = false;
+                    vitrLabel.Visible = false;
+                    tlakLabel.Visible = false;
                 }
+            }
 
-                TempLabel.Text = "" + (int)(double.Parse(TeplotaData.temp.Replace('.', ',')) - 273.16) + "°";
-                WeatherPic.Image = Image.FromFile(@"..\\Image\\Weather\\" + TeplotaData.icon + ".png");
 
             //--- Notifikace
 
@@ -203,21 +238,22 @@ namespace WindowsFormsApp2.Properties
             //--- Internet connection
 
             Image image;
-            Boolean connection;
+
+            Boolean connection = lastConnectionBoolean;
 
             try
             {
                 if (CheckForInternetConnection())
                 {
                         image = Image.FromFile(@"..\\Image\\online.png");
-                        connection = true;
+                        lastConnectionBoolean = true;
                    
 
                 }
                 else
                 {
                         image = Image.FromFile(@"..\\Image\\offline.png");
-                        connection = false;
+                        lastConnectionBoolean = false;
               
                 }
 
@@ -232,6 +268,9 @@ namespace WindowsFormsApp2.Properties
                 Console.WriteLine("nebylo možno nalést obrázek pripojení k internetu");
                 Notify("nebylo možno nalést obrázek pripojení k internetu");
             }
+
+            if (!connection && lastConnectionBoolean || connection && !lastConnectionBoolean)
+                Notify("Došlo ke změně stavu sítě");
 
             this.Refresh();
         }
@@ -292,8 +331,58 @@ namespace WindowsFormsApp2.Properties
         {
 
         }
+
+        private void vitrLabel_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label5_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void pictureBox3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void vlhkostLabel_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void pictureBox2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tlakLabel_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label7_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 
-    }
+}
 
 
