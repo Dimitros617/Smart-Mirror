@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Collections;
 using System.Drawing.Imaging;
+using System.IO;
 
 namespace WindowsFormsApp2.Properties
 {
@@ -55,9 +56,7 @@ namespace WindowsFormsApp2.Properties
 
         private void Main_UI_Load(object sender, EventArgs e)
         {
-
-            
-
+         
             int s = Screen.PrimaryScreen.Bounds.Width;
             int v = Screen.PrimaryScreen.Bounds.Height;
 
@@ -79,12 +78,21 @@ namespace WindowsFormsApp2.Properties
 
             try
             {
-                TeplotaData = new WeatherData("Most");
+                TeplotaData = new WeatherData();
                 TempLabel.Visible = true;
                 WeatherPic.Visible = true;
                 vlhkostLabel.Visible = true;
                 vitrLabel.Visible = true;
                 tlakLabel.Visible = true;
+                mestoLabel.Visible = true;
+                pictureBox1.Visible = true;
+                pictureBox2.Visible = true;
+                pictureBox3.Visible = true;
+                label2.Visible = true;
+                label3.Visible = true;
+                label5.Visible = true;
+                label7.Visible = true;
+                label8.Visible = true;
 
                 TempLabel.Text = "" + (int)(double.Parse(TeplotaData.temp.Replace('.', ','))) + "°";
                 WeatherPic.Image = Image.FromFile(@"..\\Image\\Weather\\" + TeplotaData.icon + ".png");
@@ -92,6 +100,7 @@ namespace WindowsFormsApp2.Properties
                 vlhkostLabel.Text = TeplotaData.vlhkost;
                 tlakLabel.Text = TeplotaData.tlak;
                 TeplotaLastUpdate = DateTime.Now.Minute ;
+                mestoLabel.Text = TeplotaData.mesto.ToUpper();
             }
             catch
             {
@@ -101,6 +110,15 @@ namespace WindowsFormsApp2.Properties
                 vlhkostLabel.Visible = false;
                 vitrLabel.Visible = false;
                 tlakLabel.Visible = false;
+                mestoLabel.Visible = false;
+                pictureBox1.Visible = false;
+                pictureBox2.Visible = false;
+                pictureBox3.Visible = false;
+                label2.Visible = false;
+                label3.Visible = false;
+                label5.Visible = false;
+                label7.Visible = false;
+                label8.Visible = false;
 
             }
             
@@ -184,12 +202,22 @@ namespace WindowsFormsApp2.Properties
                     vlhkostLabel.Visible = true;
                     vitrLabel.Visible = true;
                     tlakLabel.Visible = true;
+                    mestoLabel.Visible = true;
+                    pictureBox1.Visible = true;
+                    pictureBox2.Visible = true;
+                    pictureBox3.Visible = true;
+                    label2.Visible = true;
+                    label3.Visible = true;
+                    label5.Visible = true;
+                    label7.Visible = true;
+                    label8.Visible = true;
 
                     TempLabel.Text = "" + (int)(double.Parse(TeplotaData.temp.Replace('.', ','))) + "°";
                     WeatherPic.Image = Image.FromFile(@"..\\Image\\Weather\\" + TeplotaData.icon + ".png");
                     vitrLabel.Text = TeplotaData.windSpeed;
                     vlhkostLabel.Text = TeplotaData.vlhkost;
                     tlakLabel.Text = TeplotaData.tlak;
+                    mestoLabel.Text = TeplotaData.mesto;
 
                     TeplotaLastUpdate = DateTime.Now.Minute;
                     Notify("Počasí bylo úspěšně aktualizováno");
@@ -203,6 +231,15 @@ namespace WindowsFormsApp2.Properties
                     vlhkostLabel.Visible = false;
                     vitrLabel.Visible = false;
                     tlakLabel.Visible = false;
+                    mestoLabel.Visible = false;
+                    pictureBox1.Visible = false;
+                    pictureBox2.Visible = false;
+                    pictureBox3.Visible = false;
+                    label2.Visible = false;
+                    label3.Visible = false;
+                    label5.Visible = false;
+                    label7.Visible = false;
+                    label8.Visible = false;
                 }
             }
 
@@ -381,6 +418,13 @@ namespace WindowsFormsApp2.Properties
         {
 
         }
+
+        private void mestoLabel_Click(object sender, EventArgs e)
+        {
+
+        }
+
+
     }
 
 }

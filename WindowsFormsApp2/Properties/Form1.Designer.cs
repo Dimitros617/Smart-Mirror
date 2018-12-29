@@ -51,6 +51,7 @@
             this.pictureBox3 = new System.Windows.Forms.PictureBox();
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
+            this.mestoLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.OnlineStatus)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.WeatherPic)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -335,12 +336,29 @@
             this.label8.TabIndex = 21;
             this.label8.Text = "|";
             // 
+            // mestoLabel
+            // 
+            this.mestoLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.mestoLabel.AutoSize = true;
+            this.mestoLabel.BackColor = System.Drawing.Color.Transparent;
+            this.mestoLabel.Font = new System.Drawing.Font("Century Gothic", 18.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.mestoLabel.ForeColor = System.Drawing.Color.Gray;
+            this.mestoLabel.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.mestoLabel.Location = new System.Drawing.Point(691, 185);
+            this.mestoLabel.Name = "mestoLabel";
+            this.mestoLabel.Size = new System.Drawing.Size(97, 31);
+            this.mestoLabel.TabIndex = 22;
+            this.mestoLabel.Text = "MĚSTO";
+            this.mestoLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.mestoLabel.Click += new System.EventHandler(this.mestoLabel_Click);
+            // 
             // Main_UI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.mestoLabel);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.tlakLabel);
             this.Controls.Add(this.pictureBox3);
@@ -398,5 +416,6 @@
         private System.Windows.Forms.PictureBox pictureBox3;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label mestoLabel;
     }
 }
