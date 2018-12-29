@@ -10,7 +10,7 @@ class WeatherData
 
     //private const string APIKEY = "410463b3935acea56c8171825dbb4440";
     private List<string> APIKEY;
-    private string LocalAPI = "2b0d3bd2a41e54c22b4f1d551969ce66";
+    private string LocalAPI = "2b0d3bd2a41e54c22b4f1d551969ce66"; // api klíš pro získávání polohy na záladě IP adresy
     private string CurrentURL;
 
     string[] weatherData;
@@ -26,6 +26,13 @@ class WeatherData
     public string zapad;
     public string icon;
 
+    /**
+     * 
+     * Konstruktor nastaví polohu město
+     * aktualizuje počasí 
+     * 
+     * Více Api klíčů kontroluje chyby kdyby jeden z nich nefungoval
+     **/
     public WeatherData()
     {
         APIKEY = new List<string>();
@@ -39,6 +46,10 @@ class WeatherData
         CheckWeather();
     }
 
+    /**
+     * Naštení dat z netu a vytvoření splitnutého pole 
+     * Zavolání metody setVar která vybere a nastaví příslušné hodnoty
+     **/
     public void CheckWeather()
     {
         using (WebClient client = new WebClient())
@@ -73,6 +84,12 @@ class WeatherData
         setVar(ref icon, "icon");
     }
 
+    /**
+     * ref prom = předaný pointer na globální proměnou
+     * xmlMark = hodnota atributu v xml dokumentu hodnota atributu se zapíše do prom
+     * 
+     * Metoda nalezne podle názvu atributu v rozsplitovaném poli stringů weatherData hodnotu kterou zapíše do předané globální proměné
+     **/
     private void setVar(ref string prom, string xmlMark) {
 
         for (int i = 0; i < weatherData.Length; i++)
@@ -85,6 +102,10 @@ class WeatherData
 
     }
 
+
+    /**
+     * Metoda si najde a nastaví globální proměnou město podle lokalizace IP adresy
+     **/
     private void getLocation() {
 
         using (WebClient client = new WebClient())
@@ -95,7 +116,7 @@ class WeatherData
             locationData = (client.DownloadString("http://api.ipstack.com/" + IP + "?access_key=" + LocalAPI )).Split('"');
         }
 
-        for (int i = 0; i < locationData.Length; i++)
+        for (int i = 0; i < locationData.Length; i++) // pouze parsování a nalezení názvu města z rozsplitovaného stringu z netu
         {
             if (locationData[i].Equals("city"))
             {
