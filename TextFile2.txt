@@ -1,6 +1,5 @@
-ï»¿using System;
+using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -11,7 +10,7 @@ namespace WindowsFormsApp2
     static class Program
     {
         /// <summary>
-        /// HlavnÃ­ vstupnÃ­ bod aplikace.
+        /// Hlavní vstupní bod aplikace.
         /// </summary>
         [STAThread]
         static void Main()
@@ -19,9 +18,8 @@ namespace WindowsFormsApp2
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Form form = new Main_UI();
-            Calendar calendar = new Calendar();
-            //Application.Run(form);
-
+            Application.Run(form);
+            
         }
     }
 }
