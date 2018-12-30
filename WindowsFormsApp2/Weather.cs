@@ -11,7 +11,6 @@ class WeatherData
     //private const string APIKEY = "410463b3935acea56c8171825dbb4440";
     private List<string> APIKEY;
     private string LocalAPI = "2b0d3bd2a41e54c22b4f1d551969ce66"; // api klíš pro získávání polohy na záladě IP adresy
-    private string CurrentURL;
 
     string[] weatherData;
     string[] locationData;
