@@ -33,7 +33,8 @@ namespace WindowsFormsApp2
          * Metoda potřebuje vstupní parametr true nebo false podle toho zda je k dyspozici připojení k internetu
          * Metoda vrací chybu v případě že nešlo načíst data z internetu
          **/
-        public void UpdateCalendar(Boolean b) {
+        public void UpdateCalendar(Boolean b)
+        {
 
             if (lastOnlineUpdate != DateTime.Now.Hour)
             {
@@ -125,13 +126,13 @@ namespace WindowsFormsApp2
 
             }
             DcalendarData = null;
-            
-             foreach (string s in McalendarData)
-             {
-                 if (s != null)
-                     Mcalendar.Add(new Event(s));
 
-             }
+            foreach (string s in McalendarData)
+            {
+                if (s != null)
+                    Mcalendar.Add(new Event(s));
+
+            }
 
             McalendarData = null;
 
@@ -154,7 +155,7 @@ namespace WindowsFormsApp2
 
             int aaa = DateTime.Now.Day;
             int bbb = DateTime.Now.Month;
-            
+
 
             if (s.ToLower().Equals("d"))
             {
@@ -184,33 +185,35 @@ namespace WindowsFormsApp2
             {
                 DcalendarToday = pom;
             }
-            else {
+            else
+            {
                 McalendarToday = pom;
             }
 
-            
+
         }
 
         /**
          * Metoda nasaví pro všechny eventy dnes vniřní prom check viz tam
          * Markne eventy na časovou osu
          **/
-        public void UpdateMarkEvent(String s) {
+        public void UpdateMarkEvent(String s)
+        {
 
             List<Event> pom;
 
-            if (DcalendarToday.Count == 0) 
+            if (DcalendarToday.Count == 0)
                 SetTodayCalendar(s);
-            
 
-                if (s.ToLower().Equals("d"))
-                {
-                    pom = DcalendarToday;
-                }
-                else
-                {
-                    pom = McalendarToday;
-                }
+
+            if (s.ToLower().Equals("d"))
+            {
+                pom = DcalendarToday;
+            }
+            else
+            {
+                pom = McalendarToday;
+            }
 
             for (int i = 0; i < pom.Count; i++)
             {
@@ -224,7 +227,11 @@ namespace WindowsFormsApp2
 
         }
 
-        private void SaveOffline() {
+        /**
+         * Metoda uloží celé kalendáře do souboru
+         **/
+        private void SaveOffline()
+        {
 
             TextWriter tw = new StreamWriter(path, false, Encoding.UTF8);
 
@@ -239,10 +246,9 @@ namespace WindowsFormsApp2
             {
                 tw.Write(Dcalendar[i].nazev + ";");
                 tw.Write(Dcalendar[i].ucebna + ";");
-                tw.Write(Dcalendar[i].start.Hour + ";");
-                tw.Write(Dcalendar[i].start.Minute + ";");
-                tw.Write(Dcalendar[i].konec.Hour + ";");
-                tw.WriteLine(Dcalendar[i].konec.Hour + ";");
+                tw.Write(Dcalendar[i].start.Year + "-" + Dcalendar[i].start.Month + "-" + Dcalendar[i].start.Day + "-" + Dcalendar[i].start.Hour + "-" + Dcalendar[i].start.Minute + ";");
+                tw.WriteLine(Dcalendar[i].konec.Year + "-" + Dcalendar[i].konec.Month + "-" + Dcalendar[i].konec.Day + "-" + Dcalendar[i].konec.Hour + "-" + Dcalendar[i].konec.Minute + ";");
+
 
             }
 
@@ -252,20 +258,48 @@ namespace WindowsFormsApp2
             {
                 tw.Write(Mcalendar[i].nazev + ";");
                 tw.Write(Mcalendar[i].ucebna + ";");
-                tw.Write(Mcalendar[i].start.Hour + ";");
-                tw.Write(Mcalendar[i].start.Minute + ";");
-                tw.Write(Mcalendar[i].konec.Hour + ";");
-                tw.WriteLine(Mcalendar[i].konec.Hour + ";");
+                tw.Write(Mcalendar[i].start.Year + "-" + Dcalendar[i].start.Month + "-" + Dcalendar[i].start.Day + "-" + Dcalendar[i].start.Hour + "-" + Dcalendar[i].start.Minute + ";");
+                tw.WriteLine(Mcalendar[i].konec.Year + "-" + Dcalendar[i].konec.Month + "-" + Dcalendar[i].konec.Day + "-" + Dcalendar[i].konec.Hour + "-" + Dcalendar[i].konec.Minute + ";");
+
 
             }
+            tw.WriteLine("-");
             tw.Close();
         }
 
 
         private void LoadFromCash()
         {
-            
-        }
+            if (!File.Exists(path))
+            {
+                throw new Exception("Soubor z daty kalendáře neexistuje");
+            }
+            else
+            {
+                TextReader reader = File.OpenText(path);
+                lastOnlineUpdate = Int32.Parse(reader.ReadLine());
 
+                string s = reader.ReadLine().Trim();
+                while (!s.Equals("-"))
+                {
+                    string[] pom = s.Split(';');
+                    Dcalendar.Add(new Event(pom[0],pom[1],pom[2],pom[3]));
+
+                    s = reader.ReadLine().Trim();
+                }
+
+                s = reader.ReadLine().Trim();
+                while (!s.Equals("-"))
+                {
+                    string[] pom = s.Split(';');
+                    Mcalendar.Add(new Event(pom[0], pom[1], pom[2], pom[3]));
+
+                    s = reader.ReadLine().Trim();
+                }
+
+
+            }
+
+        }
     }
 }

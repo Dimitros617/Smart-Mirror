@@ -29,7 +29,15 @@ namespace WindowsFormsApp2
 
             }
 
-            //Console.WriteLine("AHOJ");
+        }
+
+        public Event(string naz, string loc, string st, string kon) {
+
+            nazev = naz;
+            ucebna = loc;
+            start = getDate(st);
+            konec = getDate(kon);
+
         }
 
         /**
