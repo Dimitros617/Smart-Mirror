@@ -12,29 +12,49 @@ namespace WindowsFormsApp2
     {
         public int lastUpdate; // den v měsíci poseldního updatu
         public DateTime NextTimeTram;
+        public DateTime NextTimeBus;
         public List<int> JizdniRadTram = new List<int>();
+        public List<int> JizdniRadBus = new List<int>();
+
+        private List<string> busList = new List<string>(new string[] {"http://jizdnirady.pmdp.cz/DZJR_dynamic.aspx?isShort=True&passport=6&point=3&lineName=24", "http://jizdnirady.pmdp.cz/DZJR_dynamic.aspx?isShort=True&passport=6&point=7&lineName=30"}); // adresy vicero autobusu ze stranek PMDP
+        private string tramAdress = "http://jizdnirady.pmdp.cz/DZJR_dynamic.aspx?isShort=True&passport=6&point=1&lineName=4"; // adresa ze stránek PMDP jedne tramvaje
+
+        private string path = @"..\\Cash\\mhd.txt"; // adresa cash souboru pro MHD
 
         public int Posun = 5; // posun casu min za kolik min mám hledat spoj
 
+
+        /**
+         * Konstriktor má vstupní parametr True nebo False zda je připojení k internetu nebo ne
+         * Konstruktor pak vrací chybu pokud neexstuje cash soubor a zároveň není připojení k internetu
+         **/
         public MHD(Boolean b)
         {
+            try
+            {
+                LoadFromCash();
+            }
+            catch
+            {
+                lastUpdate = DateTime.Now.Day - 1;
+                if (!b)
+                    throw new Exception("Neexistuje cash a není připojení k internetu nelze načíst informace");
+            }
 
             if (b && lastUpdate != DateTime.Now.Day)
                 onlineUpdate();
             else
-                offlineUpdate();
+                LoadFromCash();
+
+
 
             UpdateNextSpoj(JizdniRadTram, ref NextTimeTram);
         }
 
 
-        private void offlineUpdate()
-        {
-
-        }
-
         /**
          * Metoda stáhne data z internetu´, naparsuje je a vytvoří Pole Listů typu int
+         * Metoda vrací chyby při nepodaření stáhnutí dat z netu jednotlivě při každém pokusu pro tramvaj nebo autobus
          **/
         private void onlineUpdate()
         {
@@ -45,13 +65,13 @@ namespace WindowsFormsApp2
             {
                 try
                 {
-                    data = (client.DownloadString("http://jizdnirady.pmdp.cz/DZJR_dynamic.aspx?isShort=True&passport=6&point=1&lineName=4").Split(new[] { "<td class=\"hour\">" }, StringSplitOptions.None));
+                    data = (client.DownloadString(tramAdress).Split(new[] { "<td class=\"hour\">" }, StringSplitOptions.None));
 
                 }
                 catch (Exception)
                 {
 
-                    throw new Exception("Nebylo možno stáhnout rady tramvaji") ;
+                    throw new Exception("Nebylo možno stáhnout jizdní řády tramvají") ;
                 }
             }
 
@@ -65,6 +85,41 @@ namespace WindowsFormsApp2
                 }
 
             }
+
+            //--- nacitani busu
+
+            foreach (string adresa in busList)
+            {
+
+                using (WebClient client = new WebClient())
+                {
+                    try
+                    {
+                        data = (client.DownloadString(adresa).Split(new[] { "<td class=\"hour\">" }, StringSplitOptions.None));
+
+                    }
+                    catch (Exception)
+                    {
+
+                        throw new Exception("Nebylo možno stáhnout jízdní řády autobusů " );
+                    }
+                }
+
+                for (int i = 0; i < 24; i++)
+                {
+                    string[] data2 = data[i + 1].Split(new[] { "<td class=\"normal\">" }, StringSplitOptions.None);
+
+                    for (int j = 1; j < data2.Length; j++)
+                    {
+                        JizdniRadBus.Add(i * 60 + (Int32.Parse(data2[j].Replace("\r\n", string.Empty).Replace(" ", string.Empty).Substring(0, 2))));
+                    }
+
+                }
+
+            }
+
+            JizdniRadBus = (JizdniRadBus.Distinct().ToList());
+            JizdniRadBus.Sort();
 
             SaveOffline();
         }
@@ -100,9 +155,15 @@ namespace WindowsFormsApp2
 
         }
 
+        /**
+         * Metoda uloží stažená dat do souboru s kodovaním vzestupně seřazených dat 
+         *  řádek 1 = den v měsíci poslední aktualizace
+         *  řádek 2 = pole tramvajových jízdních řádů převedené na minuty od začátku dne
+         *  řádek 3 = -||- autobusových řádů i vícero autobusu 
+         **/
         public void SaveOffline() {
 
-            string path = @"..\\Cash\\mhd.txt";
+            
             TextWriter tw = new StreamWriter(path);
 
             if (!File.Exists(path))
@@ -110,14 +171,51 @@ namespace WindowsFormsApp2
                 File.Create(path);
             }
 
+            tw.WriteLine(DateTime.Now.Day);
             foreach (int t in JizdniRadTram)
             {
                 tw.Write(t + ";");
             }
-            
+
+            tw.WriteLine("");
+
+            foreach (int t in JizdniRadBus)
+            {
+                tw.Write(t + ";");
+            }
 
 
             tw.Close();
+
+        }
+
+        /**
+         * Metoda načte data ze souboru a nastaví globální promé lastUpdate a nastaví pole s jízdníma řádama pro auobusy a tramvaje
+         * Metoda vrací chybu pokud soubor ještě neexistuje
+         **/
+        public void LoadFromCash() {
+
+
+            if (!File.Exists(path))
+            {
+                throw new Exception("Soubor z daty MHD neexistuje");
+            }
+            else {
+
+                TextReader reader = File.OpenText(path);
+                lastUpdate = Int32.Parse(reader.ReadLine());
+
+                string[] pom = reader.ReadLine().Split(';');
+                foreach (string s in pom)
+                    JizdniRadTram.Add(Int32.Parse(s));
+
+                string[] pomB = reader.ReadLine().Split(';');
+                foreach (string s in pomB)
+                    JizdniRadBus.Add(Int32.Parse(s));
+            }
+            
+
+
 
         }
 
