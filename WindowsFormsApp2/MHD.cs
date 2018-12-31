@@ -11,7 +11,7 @@ namespace WindowsFormsApp2
     public class MHD
     {
         public int lastUpdate; // den v měsíci poseldního updatu
-        public DateTime NextTimeTram;
+        public DateTime NextTimeTram; // nejbližší stihnutelný spoje
         public DateTime NextTimeBus;
         public List<int> JizdniRadTram = new List<int>();
         public List<int> JizdniRadBus = new List<int>();
@@ -30,27 +30,39 @@ namespace WindowsFormsApp2
          **/
         public MHD(Boolean b)
         {
-            try
-            {
-                LoadFromCash();
-            }
-            catch
-            {
-                lastUpdate = DateTime.Now.Day - 1;
-                if (!b)
-                    throw new Exception("Neexistuje cash a není připojení k internetu nelze načíst informace");
-            }
-
-            if (b && lastUpdate != DateTime.Now.Day)
-                onlineUpdate();
-            else
-                LoadFromCash();
-
-
-
-            UpdateNextSpoj(JizdniRadTram, ref NextTimeTram);
+            UpdateMHD(b);
         }
 
+        /**
+         * Metoda má vstupní parametr True nebo False zda je připojení k internetu nebo ne
+         * Metoda pak vrací chybu pokud neexstuje cash soubor a zároveň není připojení k internetu
+         **/
+        public void UpdateMHD(Boolean b) {
+
+            if (lastUpdate != DateTime.Now.Hour)
+            {
+                try
+                {
+                    LoadFromCash();
+                }
+                catch
+                {
+                    lastUpdate = DateTime.Now.Day - 1;
+                    if (!b)
+                        throw new Exception("Neexistuje cash a není připojení k internetu nelze načíst informace");
+                }
+
+                if (b)
+                    onlineUpdate();
+                else
+                    LoadFromCash();
+
+            }
+
+            UpdateNextSpoj(JizdniRadTram, ref NextTimeTram);
+            UpdateNextSpoj(JizdniRadBus, ref NextTimeBus);
+
+        }
 
         /**
          * Metoda stáhne data z internetu´, naparsuje je a vytvoří Pole Listů typu int
@@ -125,13 +137,26 @@ namespace WindowsFormsApp2
         }
 
         /**
+         * Public metoda pro redirekt na stejnosměnou metodu podle vstupního parametru string s = Tram zavolá tamvajový update atd.
+         * Předává chybu v případě že nejsou načteny jízdní řády
+         **/
+        public void UpdateNextSpoj(string s){
+
+            if (s.ToLower().Equals("Tram"))
+                UpdateNextSpoj(JizdniRadTram,ref NextTimeTram);
+            else
+                UpdateNextSpoj(JizdniRadBus,ref NextTimeBus);
+
+        }
+
+        /**
          * Metoda naství gloubální proměnou budto NextTimeTram nebo NextTimeBus podle vstupní hodnoty NExt Spoj
          * Vstupní proměná list je jizdrni rad Budu nebo 
          **/
-        public void UpdateNextSpoj(List<int> list,ref DateTime NextSpoj) {
+        private void UpdateNextSpoj(List<int> list,ref DateTime NextSpoj) {
 
             if (list.Count == 0) {
-                throw new System.ArgumentException("Jízdní řády nejsou načteny prosím nejdříve proveďte update");
+                throw new Exception("Jízdní řády nejsou načteny prosím nejdříve proveďte update");
             }
 
             int now = DateTime.Now.Hour * 60 + DateTime.Now.Minute;
@@ -161,7 +186,7 @@ namespace WindowsFormsApp2
          *  řádek 2 = pole tramvajových jízdních řádů převedené na minuty od začátku dne
          *  řádek 3 = -||- autobusových řádů i vícero autobusu 
          **/
-        public void SaveOffline() {
+        private void SaveOffline() {
 
             
             TextWriter tw = new StreamWriter(path);
@@ -171,7 +196,7 @@ namespace WindowsFormsApp2
                 File.Create(path);
             }
 
-            tw.WriteLine(DateTime.Now.Day);
+            tw.WriteLine(lastUpdate);
             foreach (int t in JizdniRadTram)
             {
                 tw.Write(t + ";");
@@ -193,7 +218,7 @@ namespace WindowsFormsApp2
          * Metoda načte data ze souboru a nastaví globální promé lastUpdate a nastaví pole s jízdníma řádama pro auobusy a tramvaje
          * Metoda vrací chybu pokud soubor ještě neexistuje
          **/
-        public void LoadFromCash() {
+        private void LoadFromCash() {
 
 
             if (!File.Exists(path))

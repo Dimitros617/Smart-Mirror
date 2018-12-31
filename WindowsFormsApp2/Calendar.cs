@@ -1,18 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
+using System.Text;
 
 namespace WindowsFormsApp2
 {
     class Calendar
     {
-        string CalendarAPI = "AIzaSyBtwsOiCij3QZSD3uSD5aZumuM5iUOXk94";
-
-        string DcalendarAdress = "3nhndn9h6n41qgoo6m52ib4uoo@group.calendar.google.com";
-        string McalendarAdress = "";
-
-        string[] DcalendarData;
-        string[] McalendarData;
+        private string path = @"..\\Cash\\calendar.txt"; // adresa cash souboru pro kalendar
 
         public List<Event> Dcalendar;
         public List<Event> Mcalendar;
@@ -20,7 +16,9 @@ namespace WindowsFormsApp2
         public List<Event> DcalendarToday;
         public List<Event> McalendarToday;
 
-        public Calendar()
+        private int lastOnlineUpdate;
+
+        public Calendar(Boolean b)
         {
             Dcalendar = new List<Event>();
             Mcalendar = new List<Event>();
@@ -28,27 +26,97 @@ namespace WindowsFormsApp2
             DcalendarToday = new List<Event>();
             McalendarToday = new List<Event>();
 
-            UpdateCalendar();
+            UpdateCalendar(b);
         }
-        
+
+        /**
+         * Metoda potřebuje vstupní parametr true nebo false podle toho zda je k dyspozici připojení k internetu
+         * Metoda vrací chybu v případě že nešlo načíst data z internetu
+         **/
+        public void UpdateCalendar(Boolean b) {
+
+            if (lastOnlineUpdate != DateTime.Now.Hour)
+            {
+                try
+                {
+                    LoadFromCash();
+
+                }
+                catch
+                {
+                    lastOnlineUpdate = DateTime.Now.Hour - 1;
+                    if (!b)
+                        throw new Exception("Neexistuje cash a není připojení k internetu nelze načíst informace o kalendáři");
+                }
+
+                if (b)
+                {
+                    try
+                    {
+                        OnlineUpdateCalendar();
+
+                    }
+                    catch
+                    {
+
+                        try
+                        {
+                            LoadFromCash();
+
+                        }
+                        catch
+                        {
+
+                            throw new Exception("Neexistuje cash a nastala chyba při připojení k internetu nelze načíst informace o kalendáři");
+                        }
+                    }
+                }
+                else
+                {
+                    LoadFromCash();
+
+                }
+
+                SetTodayCalendar("D");
+                SetTodayCalendar("M");
+            }
+        }
+
         /**
          * Metoda stáhne data z internetu a předá je třídě event která si data naparsuje
+         * vrací chybu v případě že nelze stáhnout data z intrnetu
          **/
-        public void UpdateCalendar()
+        private void OnlineUpdateCalendar()
         {
+            string CalendarAPI = "AIzaSyBtwsOiCij3QZSD3uSD5aZumuM5iUOXk94";
 
-            using (WebClient client = new WebClient())
+            string DcalendarAdress = "3nhndn9h6n41qgoo6m52ib4uoo@group.calendar.google.com";
+            string McalendarAdress = "riasj7pgslq5q1idpqkapf4f14@group.calendar.google.com";
+
+            string[] DcalendarData;
+            string[] McalendarData;
+
+
+            try
             {
-
-                DcalendarData = (client.DownloadString("https://www.googleapis.com/calendar/v3/calendars/" + DcalendarAdress + "/events?key=" + CalendarAPI)).Split(new[] { "kind" }, StringSplitOptions.None);
-                // McalendarData = (client.DownloadString("https://www.googleapis.com/calendar/v3/calendars/" + McalendarAdress + "/events?key=" + CalendarAPI)).Split(new[] { "kind" }, StringSplitOptions.None);
-
+                using (WebClient client = new WebClient())
+                {
+                    client.Encoding = Encoding.UTF8;
+                    DcalendarData = (client.DownloadString("https://www.googleapis.com/calendar/v3/calendars/" + DcalendarAdress + "/events?key=" + CalendarAPI)).Split(new[] { "kind" }, StringSplitOptions.None);
+                    McalendarData = (client.DownloadString("https://www.googleapis.com/calendar/v3/calendars/" + McalendarAdress + "/events?key=" + CalendarAPI)).Split(new[] { "kind" }, StringSplitOptions.None);
+                    lastOnlineUpdate = DateTime.Now.Hour;
+                }
             }
+            catch
+            {
+                throw new Exception("Nastal problém při stahovaní kalendáře");
+            }
+
 
             DcalendarData[0] = null;
             DcalendarData[1] = null;
-            //McalendarData[0] = null;
-            //McalendarData[1] = null;
+            McalendarData[0] = null;
+            McalendarData[1] = null;
 
             foreach (string s in DcalendarData)
             {
@@ -56,17 +124,22 @@ namespace WindowsFormsApp2
                     Dcalendar.Add(new Event(s));
 
             }
-
-            /* 
+            DcalendarData = null;
+            
              foreach (string s in McalendarData)
              {
                  if (s != null)
                      Mcalendar.Add(new Event(s));
 
              }
-             */
-            SetTodayCalendar("D");
-            //SetTodayCalendar("M");
+
+            McalendarData = null;
+
+            GC.Collect();
+
+            SaveOffline();
+
+
         }
 
         /**
@@ -79,17 +152,21 @@ namespace WindowsFormsApp2
             List<Event> list;
             List<Event> pom = new List<Event>();
 
+            int aaa = DateTime.Now.Day;
+            int bbb = DateTime.Now.Month;
+            
+
             if (s.ToLower().Equals("d"))
             {
                 if (Dcalendar.Count == 0)
-                    UpdateCalendar();
+                    UpdateCalendar(true);
 
                 list = Dcalendar;
             }
             else
             {
                 if (Mcalendar.Count == 0)
-                    UpdateCalendar();
+                    UpdateCalendar(true);
 
                 list = Mcalendar;
             }
@@ -97,8 +174,10 @@ namespace WindowsFormsApp2
 
             foreach (Event e in list)
             {
-                if (e.start.Day == DateTime.Now.Day && e.start.Month == DateTime.Now.Month)
+                if (e.start.Day == aaa && e.start.Month == bbb)
+                {
                     pom.Add(e);
+                }
             }
 
             if (s.ToLower().Equals("d"))
@@ -109,7 +188,7 @@ namespace WindowsFormsApp2
                 McalendarToday = pom;
             }
 
-            UpdateMarkEvent(s);
+            
         }
 
         /**
@@ -143,6 +222,49 @@ namespace WindowsFormsApp2
                     pom[i].check = 2;
             }
 
+        }
+
+        private void SaveOffline() {
+
+            TextWriter tw = new StreamWriter(path, false, Encoding.UTF8);
+
+            if (!File.Exists(path))
+            {
+                File.Create(path);
+            }
+
+            tw.WriteLine(lastOnlineUpdate);
+
+            for (int i = 0; i < Dcalendar.Count; i++)
+            {
+                tw.Write(Dcalendar[i].nazev + ";");
+                tw.Write(Dcalendar[i].ucebna + ";");
+                tw.Write(Dcalendar[i].start.Hour + ";");
+                tw.Write(Dcalendar[i].start.Minute + ";");
+                tw.Write(Dcalendar[i].konec.Hour + ";");
+                tw.WriteLine(Dcalendar[i].konec.Hour + ";");
+
+            }
+
+            tw.WriteLine("-");
+
+            for (int i = 0; i < Mcalendar.Count; i++)
+            {
+                tw.Write(Mcalendar[i].nazev + ";");
+                tw.Write(Mcalendar[i].ucebna + ";");
+                tw.Write(Mcalendar[i].start.Hour + ";");
+                tw.Write(Mcalendar[i].start.Minute + ";");
+                tw.Write(Mcalendar[i].konec.Hour + ";");
+                tw.WriteLine(Mcalendar[i].konec.Hour + ";");
+
+            }
+            tw.Close();
+        }
+
+
+        private void LoadFromCash()
+        {
+            
         }
 
     }

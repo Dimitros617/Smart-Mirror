@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Text;
 using System.Xml;
 
 class WeatherData
@@ -48,29 +49,29 @@ class WeatherData
     /**
      * Naštení dat z netu a vytvoření splitnutého pole 
      * Zavolání metody setVar která vybere a nastaví příslušné hodnoty
+     * Metoda vrací chybu pokud nelze stáhnout data z internetu
      **/
     public void CheckWeather()
     {
         using (WebClient client = new WebClient())
         {
             Boolean data = false;
+            client.Encoding = Encoding.UTF8;
 
             for (int i = 0; i < APIKEY.Count; i++)
             {
                 try
                 {
                     weatherData = (client.DownloadString("http://api.openweathermap.org/data/2.5/weather?q=" + mesto + "&units=metric&APPID=" + APIKEY[i])).Split('"');
-                    data = true;
                     break;
                 }
                 catch
                 {
-
+                    throw new Exception("Nelze načíst data o počasí");
                 }
             }
 
-            if(!data)
-                throw new System.ArgumentException("Parameter cannot be null", "original");
+
         }
         setVar(ref temp, "temp");
         setVar(ref vlhkost, "humidity");
