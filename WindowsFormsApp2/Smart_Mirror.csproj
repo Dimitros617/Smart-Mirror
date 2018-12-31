@@ -85,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Calendar.cs" />
+    <Compile Include="MHD.cs" />
     <Compile Include="Event.cs" />
     <Compile Include="Weather.cs" />
     <Compile Include="Program.cs" />

@@ -107,13 +107,6 @@ class WeatherData
      **/
     private void getLocation() {
 
-        using (WebClient client = new WebClient())
-        {
-
-            string IP = new WebClient().DownloadString("http://icanhazip.com"); 
-
-            locationData = (client.DownloadString("http://api.ipstack.com/" + IP + "?access_key=" + LocalAPI )).Split('"');
-        }
 
         for (int i = 0; i < locationData.Length; i++) // pouze parsování a nalezení názvu města z rozsplitovaného stringu z netu
         {
