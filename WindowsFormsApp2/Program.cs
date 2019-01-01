@@ -15,9 +15,9 @@ namespace WindowsFormsApp2
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Form form = new Main_UI();
-            Calendar calendar = new Calendar(true);
+            //Calendar calendar = new Calendar(true);
             //MHD mhd = new MHD(true);
-            //Application.Run(form);
+            Application.Run(form);
 
         }
     }

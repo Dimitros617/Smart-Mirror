@@ -82,10 +82,10 @@ namespace WindowsFormsApp2.Properties
             //-------------- set Teplota
 
 
-            try // pokusit se o získání dat o počasí
-            {
-                TeplotaData = new WeatherData(); // vytvoření instance dat teploty
+                TeplotaData = new WeatherData(this); // vytvoření instance dat teploty
 
+            if (TeplotaData.temp != null)
+            { 
                 TempLabel.Visible = true;
                 WeatherPic.Visible = true;
                 vlhkostLabel.Visible = true;
@@ -110,11 +110,11 @@ namespace WindowsFormsApp2.Properties
                 TeplotaLastUpdate = DateTime.Now.Minute ;
                 mestoLabel.Text = TeplotaData.mesto.ToUpper();
 
-                Notify("Počasí bylo úspěšně aktualizováno");
+
             }
-            catch // v případě chyby při získávání dat o počasí se vyhodí notifikace a viz níže
+            else // v případě chyby při získávání dat o počasí se vyhodí notifikace a viz níže
             {
-                Notify("Nastala chyba při načítání počasí");
+
                 TempLabel.Visible = false;
                 WeatherPic.Visible = false;
                 vlhkostLabel.Visible = false;
@@ -202,7 +202,7 @@ namespace WindowsFormsApp2.Properties
         /**
          * Hlavní metoda co všechno aktualizuje každých 10 ms
          **/
-        private void timer1_Tick(object sender, EventArgs e)
+        private void timer1_Tick(object sender, EventArgs e) // hlavní timer
         {
 
             //--- nastavení všech hodnot ohledně času a data
@@ -213,12 +213,11 @@ namespace WindowsFormsApp2.Properties
 
             //--- Temperature
 
-            if ((DateTime.Now.Minute - TeplotaLastUpdate) >= 5 && lastConnectionBoolean || (DateTime.Now.Minute - TeplotaLastUpdate) < 0 && lastConnectionBoolean) // pokud poslední čas aktualizace byl před 5 min nebo v celou hodinu
-            { // každých 5 min se pokusit o obnovení dat počasí
-                try
-                {
-                    TeplotaData.CheckWeather(); // hlavní aktualizační metoda která se pousí obnovit data o počasí 
 
+                    TeplotaData.UpdateWeather(); // hlavní aktualizační metoda která se pousí obnovit data o počasí 
+
+            if (TeplotaData.temp != null)
+            { 
                     TempLabel.Visible = true;
                     WeatherPic.Visible = true;
                     vlhkostLabel.Visible = true;
@@ -243,11 +242,11 @@ namespace WindowsFormsApp2.Properties
                     mestoLabel.Text = TeplotaData.mesto;
 
                     TeplotaLastUpdate = DateTime.Now.Minute; // přepsat čas poslední aktualizace
-                    Notify("Počasí bylo úspěšně aktualizováno");
+
                 }
-                catch // případ kdy není možno aktualizovat data z internetu
+                else // případ kdy není možno aktualizovat data z internetu
                 {
-                    Notify("Nastala chyba při načítání dat počasí Opětovný pokus za 10 min");
+
                     TempLabel.Text = "";
                     TempLabel.Visible = false;
                     WeatherPic.Visible = false;
@@ -264,7 +263,7 @@ namespace WindowsFormsApp2.Properties
                     label7.Visible = false;
                     label8.Visible = false;
                 }
-            }
+            
 
 
             //--- Notifikace vykreslování notifikací
@@ -349,7 +348,7 @@ namespace WindowsFormsApp2.Properties
         /**
          * Hlavní metoda pro notifikace
          **/
-        private void Notify(String s) {
+        public void Notify(String s) {
 
             Console.WriteLine(s); // vypsání notifikace do konzole
 
