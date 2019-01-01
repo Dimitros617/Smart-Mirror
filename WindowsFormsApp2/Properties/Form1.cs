@@ -36,6 +36,10 @@ namespace WindowsFormsApp2.Properties
         Point ms;
         Point mk;
 
+        Brush transparentWhiteB = new SolidBrush(Color.FromArgb(128, 255, 255, 255));
+        Pen transparentWhite = new Pen(Color.FromArgb(128, Color.White), 3); // transparentní černá
+
+        private int[] pointTime = new int[15] { 450, 505, 560, 615, 670, 725, 780, 835, 890, 945, 1000, 1055, 1110, 1165, 1210};
 
         Bitmap bm = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
 
@@ -74,23 +78,56 @@ namespace WindowsFormsApp2.Properties
             dk = new Point(DateDayOfWeek.Location.X, Screen.PrimaryScreen.Bounds.Height - 150);
 
             ms = new Point(Screen.PrimaryScreen.Bounds.Width - DateDayOfWeek.Location.X, DateDayOfWeek.Location.Y + 100);
-            mk = new Point(Screen.PrimaryScreen.Bounds.Width - DateDayOfWeek.Location.X, Screen.PrimaryScreen.Bounds.Height - 150);
-
-
-            var semiBlack = Color.FromArgb(128, Color.White);
-            Brush transparentWhiteB = new SolidBrush(Color.FromArgb(128, 255, 255, 255));
-
-            Pen transparentWhite = new Pen(semiBlack, 3); // transparentní černá
+            mk = new Point(Screen.PrimaryScreen.Bounds.Width - DateDayOfWeek.Location.X, Screen.PrimaryScreen.Bounds.Height - 150);            
 
 
             //e.Graphics.DrawEllipse(BigLine, ds.X, dk.Y, 20, 20);
             e.Graphics.DrawLine(transparentWhite, ds, dk); // moje cara
             e.Graphics.DrawLine(transparentWhite, ms, mk); // milanovo cara
+
+            e.Graphics.FillEllipse(transparentWhiteB, new Rectangle(ds.X - 5, ds.Y - 5, 10, 10)); // spodni muj bili puntik
+            e.Graphics.FillEllipse(transparentWhiteB, new Rectangle(ds.X - 10, ds.Y - 10, 20, 20)); // spodni muj bili tranparent
+            e.Graphics.FillEllipse(transparentWhiteB, new Rectangle(ms.X - 5, ms.Y - 5, 10, 10));// spodni milanovo bili puntik
+            e.Graphics.FillEllipse(transparentWhiteB, new Rectangle(ms.X - 10, ms.Y - 10, 20, 20));// spodni milanovo bili tranparent
+
             e.Graphics.FillEllipse(transparentWhiteB, new Rectangle(ds.X - 5, dk.Y - 5, 10, 10)); // spodni muj bili puntik
             e.Graphics.FillEllipse(transparentWhiteB, new Rectangle(ds.X - 10, dk.Y - 10, 20, 20)); // spodni muj bili tranparent
             e.Graphics.FillEllipse(transparentWhiteB, new Rectangle(ms.X - 5, mk.Y - 5, 10, 10));// spodni milanovo bili puntik
             e.Graphics.FillEllipse(transparentWhiteB, new Rectangle(ms.X - 10, mk.Y - 10, 20, 20));// spodni milanovo bili tranparent
 
+            foreach (int i in pointTime)
+            {
+                drawPoint(e, "D", i);
+            }
+
+            foreach (int i in pointTime)
+            {
+                drawPoint(e, "M", i);
+            }
+        }
+
+        private void drawPoint(PaintEventArgs e, String s, int time) {
+
+            int timeStart = 420;
+            int timeKonec = 1230;
+
+            double a = (double)((double)dk.Y - (double)ds.Y) / (double)((double)timeKonec - (double)timeStart);
+            double posunNaY =  a * (time - timeStart);
+
+            String cas = String.Format("{0:00}", time/60) + ":" + String.Format("{0:00}", time%60);
+            Font drawFont = new Font("Century Gothic", 11);
+
+            if (s.ToLower().Equals("d"))
+            {
+
+                e.Graphics.FillEllipse(transparentWhiteB, new Rectangle(ds.X - 5, (int)posunNaY + ds.Y - 5, 10, 10)); 
+                e.Graphics.DrawString(cas, drawFont, new SolidBrush(Color.White), ds.X - 55, (int)posunNaY + ds.Y - 10, new StringFormat());
+            }
+            else {
+
+                e.Graphics.FillEllipse(transparentWhiteB, new Rectangle(ms.X - 5, (int)posunNaY + ms.Y - 5, 10, 10)); 
+                e.Graphics.DrawString(cas, drawFont, new SolidBrush(Color.White), ms.X + 10, (int)posunNaY + ms.Y - 10, new StringFormat());
+            }
 
         }
 
@@ -111,7 +148,7 @@ namespace WindowsFormsApp2.Properties
 
             //-------------- set cas a datum | nastavení hodnot všech labelu ohledne času
 
-            cas.Text = String.Format("{0:00}", DateTime.Now.Hour) + ":" + String.Format("{0:00}", DateTime.Now.Minute); ;
+            cas.Text = String.Format("{0:00}", DateTime.Now.Hour) + ":" + String.Format("{0:00}", DateTime.Now.Minute); 
             cas_sec.Text = string.Format("{0:00}", DateTime.Now.Second);
 
             DateMonth.Text = DateTime.Now.Day + ". " + mesice[DateTime.Now.Month - 1];
