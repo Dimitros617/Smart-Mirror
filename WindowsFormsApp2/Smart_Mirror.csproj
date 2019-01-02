@@ -111,7 +111,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Calendar.cs" />
-    <Compile Include="CalendarGraphic.cs" />
     <Compile Include="MHD.cs" />
     <Compile Include="Event.cs" />
     <Compile Include="Properties\Loading.cs">
@@ -192,6 +191,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="bin\Image\vitr.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Image\tram.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Image\bus.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

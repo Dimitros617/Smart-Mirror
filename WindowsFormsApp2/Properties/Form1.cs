@@ -140,23 +140,72 @@ namespace WindowsFormsApp2.Properties
                     double posunNaYstart = ((double)((double)dk.Y - (double)ds.Y) / (double)((double)timeKonec - (double)timeStart)) * ((u.start.Hour * 60 + u.start.Minute) - timeStart);
                     double posunNaYkonec = ((double)((double)dk.Y - (double)ds.Y) / (double)((double)timeKonec - (double)timeStart)) * ((u.konec.Hour * 60 + u.konec.Minute) - timeStart);
 
+                    int t = (DateTime.Now.Hour * 60 + DateTime.Now.Minute) - (u.start.Hour * 60 + u.start.Minute);
+
+                    String posunCasu = String.Format("{0:00}", t / 60) + ":" + String.Format("{0:00}", t % 60);
+
                     e.Graphics.DrawLine(white, ds.X, (int)posunNaYstart + ms.Y, ds.X, (int)posunNaYkonec + ms.Y);
-                    e.Graphics.DrawString(u.nazev, Nazev, new SolidBrush(Color.White), ds.X + 10, (int)posunNaYstart + ds.Y - 10, new StringFormat());
-
+                    e.Graphics.DrawString(u.nazev + " | " + posunCasu, Nazev, new SolidBrush(Color.White), ds.X + 10, (int)posunNaYstart + ds.Y - 10, new StringFormat());
                     if (u.ucebna != null)
-                    {
-                        e.Graphics.DrawString(u.ucebna, Nazev, new SolidBrush(Color.White), ds.X + 10, (int)posunNaYstart + ds.Y + 5, new StringFormat());
-                    }
-                    else
-                    {
+                    e.Graphics.DrawString(u.ucebna, Misto, new SolidBrush(Color.White), ds.X + 10, (int)posunNaYstart + ds.Y + 8, new StringFormat());
 
-                    }
+                }
+
+                foreach (Event u in calendar.McalendarToday)
+                {
+                    double posunNaYstart = ((double)((double)dk.Y - (double)ds.Y) / (double)((double)timeKonec - (double)timeStart)) * ((u.start.Hour * 60 + u.start.Minute) - timeStart);
+                    double posunNaYkonec = ((double)((double)dk.Y - (double)ds.Y) / (double)((double)timeKonec - (double)timeStart)) * ((u.konec.Hour * 60 + u.konec.Minute) - timeStart);
+
+                    int t = (DateTime.Now.Hour * 60 + DateTime.Now.Minute) - (u.start.Hour * 60 + u.start.Minute);
+
+                    String posunCasu = String.Format("{0:00}", t / 60) + ":" + String.Format("{0:00}", t % 60);
+                    String nazev = posunCasu + " | " + u.nazev;
+
+                    int stringSizeNazev = (int)e.Graphics.MeasureString(nazev, Nazev).Width;
+                    int stringSizeMisto = (int)e.Graphics.MeasureString(u.ucebna, Misto).Width;
+
+                    e.Graphics.DrawLine(white, ms.X, (int)posunNaYstart + ms.Y, ms.X, (int)posunNaYkonec + ms.Y);
+                    e.Graphics.DrawString(nazev, Nazev, new SolidBrush(Color.White), ms.X - 10 - stringSizeNazev, (int)posunNaYstart + ds.Y - 10, new StringFormat());
+                    if (u.ucebna != null)
+                    e.Graphics.DrawString(u.ucebna, Misto, new SolidBrush(Color.White), ms.X - 10 - stringSizeMisto, (int)posunNaYstart + ds.Y + 8, new StringFormat());
                 }
             }
             else
             {
 
+                foreach (Event u in calendar.DcalendarTomorrow)
+                {
+                    double posunNaYstart = ((double)((double)dk.Y - (double)ds.Y) / (double)((double)timeKonec - (double)timeStart)) * ((u.start.Hour * 60 + u.start.Minute) - timeStart);
+                    double posunNaYkonec = ((double)((double)dk.Y - (double)ds.Y) / (double)((double)timeKonec - (double)timeStart)) * ((u.konec.Hour * 60 + u.konec.Minute) - timeStart);
 
+                    int t = ((DateTime.Now.Hour * 60 + DateTime.Now.Minute) - (u.start.Hour * 60 + u.start.Minute)) + 1439;
+
+                    String posunCasu = String.Format("{0:00}", t / 60) + ":" + String.Format("{0:00}", t % 60);
+
+                    e.Graphics.DrawLine(white, ds.X, (int)posunNaYstart + ms.Y, ds.X, (int)posunNaYkonec + ms.Y);
+                    e.Graphics.DrawString(u.nazev + " | " + posunCasu, Nazev, new SolidBrush(Color.White), ds.X + 10, (int)posunNaYstart + ds.Y - 10, new StringFormat());
+                    if (u.ucebna != null)
+                    e.Graphics.DrawString(u.ucebna, Misto, new SolidBrush(Color.White), ds.X + 10, (int)posunNaYstart + ds.Y + 8, new StringFormat());
+                }
+
+                foreach (Event u in calendar.McalendarTomorrow)
+                {
+                    double posunNaYstart = ((double)((double)dk.Y - (double)ds.Y) / (double)((double)timeKonec - (double)timeStart)) * ((u.start.Hour * 60 + u.start.Minute) - timeStart);
+                    double posunNaYkonec = ((double)((double)dk.Y - (double)ds.Y) / (double)((double)timeKonec - (double)timeStart)) * ((u.konec.Hour * 60 + u.konec.Minute) - timeStart);
+
+                    int t = ((DateTime.Now.Hour * 60 + DateTime.Now.Minute) - (u.start.Hour * 60 + u.start.Minute)) + 1439;
+
+                    String posunCasu = String.Format("{0:00}", t / 60) + ":" + String.Format("{0:00}", t % 60);
+                    String nazev = posunCasu + " | " + u.nazev;
+
+                    int stringSizeNazev = (int)e.Graphics.MeasureString(nazev, Nazev).Width;
+                    int stringSizeMisto = (int)e.Graphics.MeasureString(u.ucebna, Misto).Width;
+
+                    e.Graphics.DrawLine(white, ms.X, (int)posunNaYstart + ms.Y, ms.X, (int)posunNaYkonec + ms.Y);
+                    e.Graphics.DrawString(nazev, Nazev, new SolidBrush(Color.White), ms.X - 10 - stringSizeNazev, (int)posunNaYstart + ds.Y - 10, new StringFormat());
+                    if (u.ucebna != null)
+                    e.Graphics.DrawString(u.ucebna, Misto, new SolidBrush(Color.White), ms.X - 10 - stringSizeMisto, (int)posunNaYstart + ds.Y + 8, new StringFormat());
+                }
 
             }
         }
@@ -443,10 +492,28 @@ namespace WindowsFormsApp2.Properties
             if (!connection && lastConnectionBoolean || connection && !lastConnectionBoolean)
                 Notify("Došlo ke změně stavu sítě");
 
-            //--- Update grafiky pro kalendář
+            //--- Update Kalendář
 
+            calendar.UpdateCalendar(CheckForInternetConnection());
 
+            //--- Update MHD
 
+            mhd.UpdateMHD(CheckForInternetConnection());
+
+            if (mhd.NextTimeTram.Hour != 0)
+                TramLabel.Text = mhd.NextTimeTram.Hour + " hod";
+            else
+                TramLabel.Text = mhd.NextTimeTram.Minute + " min";
+
+            String bus;
+            if (mhd.NextTimeBus.Hour != 0)
+                bus = mhd.NextTimeBus.Hour + " hod";
+            else
+                bus = mhd.NextTimeBus.Minute + " min";
+
+            BusLabel.Text = bus;
+
+            BusLabel.Location = new Point(pictureBox4.Location.X - 5 - GetWidthOfString(bus, BusLabel.Font), BusLabel.Location.Y);
             this.Refresh();// hlavní refresh celého formu
         }
 
@@ -468,20 +535,38 @@ namespace WindowsFormsApp2.Properties
 
             Console.WriteLine(s); // vypsání notifikace do konzole
 
-            int locx = Screen.PrimaryScreen.Bounds.Width / 2; // nastavení pozice notifikace na střed
+            Font font = new Font("Century Gothic", 8);
+
+            int locx = Screen.PrimaryScreen.Bounds.Width / 2 - GetWidthOfString(s, font) /2; // nastavení pozice notifikace na střed
             int locy = Notifikace.Count == 0 ? 20 : Notifikace.ElementAt(0).Location.Y + 20; // vypočítání Y pozice všech notifikací aby další byla pod předchozí
 
             Label label = new Label();
             label.Location = new System.Drawing.Point(locx, locy);
             label.Name = "label";
-            label.Text = s;
+            label.Text = s.ToUpper();
             label.AutoSize = true;
             label.ForeColor = System.Drawing.Color.White;
             label.TabIndex = 300;
             label.TextAlign = ContentAlignment.MiddleCenter;
+            label.Font = font;
             this.Controls.Add(label as Control); // vykreslení notifikace
             Notifikace.AddFirst(label); // přidání notifikace do pole
 
+        }
+
+        private int GetWidthOfString(string str, Font font)
+        {
+            Bitmap objBitmap = default(Bitmap);
+            Graphics objGraphics = default(Graphics);
+
+            objBitmap = new Bitmap(500, 200);
+            objGraphics = Graphics.FromImage(objBitmap);
+
+            SizeF stringSize = objGraphics.MeasureString(str, font);
+
+            objBitmap.Dispose();
+            objGraphics.Dispose();
+            return (int)stringSize.Width;
         }
 
         private void DateDayOfWeek_Click(object sender, EventArgs e)

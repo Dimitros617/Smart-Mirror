@@ -62,7 +62,7 @@ namespace WindowsFormsApp2.Properties
 
             try
             {
-                if (lastOnlineUpdate == DateTime.Now.Minute - 5 || DateTime.Now.Minute == 0 || temp == null)
+                if (lastOnlineUpdate == DateTime.Now.Minute - 5 || DateTime.Now.Minute == 0 && DateTime.Now.Second < 2 || temp == null)
                 {
                     getLocation();
                     CheckWeather();

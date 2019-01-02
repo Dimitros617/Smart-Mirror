@@ -300,10 +300,9 @@ namespace WindowsFormsApp2
 
             TextWriter tw = new StreamWriter(path, false, Encoding.UTF8);
 
-            if (!File.Exists(path))
-            {
-                File.Create(path);
-            }
+            File.Delete(path);
+            File.Create(path);
+
 
             tw.WriteLine(lastOnlineUpdate);
 

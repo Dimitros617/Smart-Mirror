@@ -238,11 +238,6 @@ namespace WindowsFormsApp2
                 foreach (string s in pomB)
                     JizdniRadBus.Add(Int32.Parse(s));
             }
-            
-
-
-
         }
-
     }
 }

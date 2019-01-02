@@ -46,11 +46,17 @@
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.mestoLabel = new System.Windows.Forms.Label();
+            this.pictureBox4 = new System.Windows.Forms.PictureBox();
+            this.TramPic = new System.Windows.Forms.PictureBox();
             this.pictureBox3 = new System.Windows.Forms.PictureBox();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.WeatherPic = new System.Windows.Forms.PictureBox();
             this.OnlineStatus = new System.Windows.Forms.PictureBox();
+            this.TramLabel = new System.Windows.Forms.Label();
+            this.BusLabel = new System.Windows.Forms.Label();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.TramPic)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -288,6 +294,28 @@
             this.mestoLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.mestoLabel.Click += new System.EventHandler(this.mestoLabel_Click);
             // 
+            // pictureBox4
+            // 
+            this.pictureBox4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.pictureBox4.Image = global::WindowsFormsApp2.Properties.Resources.bus;
+            this.pictureBox4.Location = new System.Drawing.Point(705, 370);
+            this.pictureBox4.Name = "pictureBox4";
+            this.pictureBox4.Size = new System.Drawing.Size(38, 32);
+            this.pictureBox4.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox4.TabIndex = 24;
+            this.pictureBox4.TabStop = false;
+            // 
+            // TramPic
+            // 
+            this.TramPic.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.TramPic.Image = global::WindowsFormsApp2.Properties.Resources.tram;
+            this.TramPic.Location = new System.Drawing.Point(47, 370);
+            this.TramPic.Name = "TramPic";
+            this.TramPic.Size = new System.Drawing.Size(38, 32);
+            this.TramPic.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.TramPic.TabIndex = 23;
+            this.TramPic.TabStop = false;
+            // 
             // pictureBox3
             // 
             this.pictureBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -351,12 +379,40 @@
             this.OnlineStatus.TabStop = false;
             this.OnlineStatus.Click += new System.EventHandler(this.OnlineStatus_Click);
             // 
+            // TramLabel
+            // 
+            this.TramLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.TramLabel.AutoSize = true;
+            this.TramLabel.Font = new System.Drawing.Font("Century Gothic", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.TramLabel.ForeColor = System.Drawing.Color.White;
+            this.TramLabel.Location = new System.Drawing.Point(91, 374);
+            this.TramLabel.Name = "TramLabel";
+            this.TramLabel.Size = new System.Drawing.Size(77, 24);
+            this.TramLabel.TabIndex = 25;
+            this.TramLabel.Text = "23 min";
+            // 
+            // BusLabel
+            // 
+            this.BusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.BusLabel.AutoSize = true;
+            this.BusLabel.Font = new System.Drawing.Font("Century Gothic", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.BusLabel.ForeColor = System.Drawing.Color.White;
+            this.BusLabel.Location = new System.Drawing.Point(625, 374);
+            this.BusLabel.Name = "BusLabel";
+            this.BusLabel.Size = new System.Drawing.Size(77, 24);
+            this.BusLabel.TabIndex = 26;
+            this.BusLabel.Text = "23 min";
+            // 
             // Main_UI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.BusLabel);
+            this.Controls.Add(this.TramLabel);
+            this.Controls.Add(this.pictureBox4);
+            this.Controls.Add(this.TramPic);
             this.Controls.Add(this.mestoLabel);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.tlakLabel);
@@ -383,6 +439,8 @@
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Main_UI_Load);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.Main_UI_Paint);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.TramPic)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
@@ -416,5 +474,9 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label mestoLabel;
+        private System.Windows.Forms.PictureBox TramPic;
+        private System.Windows.Forms.PictureBox pictureBox4;
+        private System.Windows.Forms.Label TramLabel;
+        private System.Windows.Forms.Label BusLabel;
     }
 }
