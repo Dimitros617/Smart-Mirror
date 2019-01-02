@@ -29,34 +29,33 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main_UI));
             this.cas = new System.Windows.Forms.Label();
             this.cas_sec = new System.Windows.Forms.Label();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.OnlineStatus = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
             this.NotifLabel = new System.Windows.Forms.Label();
             this.DateMonth = new System.Windows.Forms.Label();
             this.DateDayOfWeek = new System.Windows.Forms.Label();
             this.TempLabel = new System.Windows.Forms.Label();
-            this.WeatherPic = new System.Windows.Forms.PictureBox();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.vitrLabel = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.vlhkostLabel = new System.Windows.Forms.Label();
-            this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.label5 = new System.Windows.Forms.Label();
             this.tlakLabel = new System.Windows.Forms.Label();
-            this.pictureBox3 = new System.Windows.Forms.PictureBox();
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.mestoLabel = new System.Windows.Forms.Label();
-            ((System.ComponentModel.ISupportInitialize)(this.OnlineStatus)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.WeatherPic)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
+            this.pictureBox3 = new System.Windows.Forms.PictureBox();
+            this.pictureBox2 = new System.Windows.Forms.PictureBox();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.WeatherPic = new System.Windows.Forms.PictureBox();
+            this.OnlineStatus = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.WeatherPic)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.OnlineStatus)).BeginInit();
             this.SuspendLayout();
             // 
             // cas
@@ -89,19 +88,6 @@
             // 
             this.timer1.Interval = 1;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-            // 
-            // OnlineStatus
-            // 
-            this.OnlineStatus.BackColor = System.Drawing.Color.Transparent;
-            this.OnlineStatus.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.OnlineStatus.ErrorImage = null;
-            this.OnlineStatus.Location = new System.Drawing.Point(32, 185);
-            this.OnlineStatus.Name = "OnlineStatus";
-            this.OnlineStatus.Size = new System.Drawing.Size(50, 48);
-            this.OnlineStatus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.OnlineStatus.TabIndex = 3;
-            this.OnlineStatus.TabStop = false;
-            this.OnlineStatus.Click += new System.EventHandler(this.OnlineStatus_Click);
             // 
             // label1
             // 
@@ -157,39 +143,13 @@
             this.TempLabel.BackColor = System.Drawing.Color.Transparent;
             this.TempLabel.Font = new System.Drawing.Font("Century Gothic", 72F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.TempLabel.ForeColor = System.Drawing.Color.White;
-            this.TempLabel.Location = new System.Drawing.Point(510, 23);
+            this.TempLabel.Location = new System.Drawing.Point(505, 23);
             this.TempLabel.Name = "TempLabel";
             this.TempLabel.Size = new System.Drawing.Size(139, 112);
             this.TempLabel.TabIndex = 9;
             this.TempLabel.Text = "0°";
             this.TempLabel.TextAlign = System.Drawing.ContentAlignment.TopRight;
             this.TempLabel.Click += new System.EventHandler(this.TempLabel_Click);
-            // 
-            // WeatherPic
-            // 
-            this.WeatherPic.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.WeatherPic.BackColor = System.Drawing.Color.Transparent;
-            this.WeatherPic.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.WeatherPic.ErrorImage = null;
-            this.WeatherPic.Location = new System.Drawing.Point(655, 27);
-            this.WeatherPic.Margin = new System.Windows.Forms.Padding(0);
-            this.WeatherPic.Name = "WeatherPic";
-            this.WeatherPic.Size = new System.Drawing.Size(80, 80);
-            this.WeatherPic.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.WeatherPic.TabIndex = 10;
-            this.WeatherPic.TabStop = false;
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(455, 144);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(25, 32);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox1.TabIndex = 11;
-            this.pictureBox1.TabStop = false;
-            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
             // 
             // vitrLabel
             // 
@@ -251,18 +211,6 @@
             this.vlhkostLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.vlhkostLabel.Click += new System.EventHandler(this.vlhkostLabel_Click);
             // 
-            // pictureBox2
-            // 
-            this.pictureBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.pictureBox2.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox2.Image")));
-            this.pictureBox2.Location = new System.Drawing.Point(576, 143);
-            this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(25, 32);
-            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox2.TabIndex = 14;
-            this.pictureBox2.TabStop = false;
-            this.pictureBox2.Click += new System.EventHandler(this.pictureBox2_Click);
-            // 
             // label5
             // 
             this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -292,18 +240,6 @@
             this.tlakLabel.Text = "1024";
             this.tlakLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.tlakLabel.Click += new System.EventHandler(this.tlakLabel_Click);
-            // 
-            // pictureBox3
-            // 
-            this.pictureBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.pictureBox3.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox3.Image")));
-            this.pictureBox3.Location = new System.Drawing.Point(677, 144);
-            this.pictureBox3.Name = "pictureBox3";
-            this.pictureBox3.Size = new System.Drawing.Size(25, 32);
-            this.pictureBox3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox3.TabIndex = 17;
-            this.pictureBox3.TabStop = false;
-            this.pictureBox3.Click += new System.EventHandler(this.pictureBox3_Click);
             // 
             // label7
             // 
@@ -352,6 +288,69 @@
             this.mestoLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.mestoLabel.Click += new System.EventHandler(this.mestoLabel_Click);
             // 
+            // pictureBox3
+            // 
+            this.pictureBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.pictureBox3.Image = global::WindowsFormsApp2.Properties.Resources.tlak;
+            this.pictureBox3.Location = new System.Drawing.Point(677, 144);
+            this.pictureBox3.Name = "pictureBox3";
+            this.pictureBox3.Size = new System.Drawing.Size(25, 32);
+            this.pictureBox3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox3.TabIndex = 17;
+            this.pictureBox3.TabStop = false;
+            this.pictureBox3.Click += new System.EventHandler(this.pictureBox3_Click);
+            // 
+            // pictureBox2
+            // 
+            this.pictureBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.pictureBox2.Image = global::WindowsFormsApp2.Properties.Resources.vlhkost;
+            this.pictureBox2.Location = new System.Drawing.Point(576, 143);
+            this.pictureBox2.Name = "pictureBox2";
+            this.pictureBox2.Size = new System.Drawing.Size(25, 32);
+            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox2.TabIndex = 14;
+            this.pictureBox2.TabStop = false;
+            this.pictureBox2.Click += new System.EventHandler(this.pictureBox2_Click);
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.pictureBox1.Image = global::WindowsFormsApp2.Properties.Resources.vitr;
+            this.pictureBox1.Location = new System.Drawing.Point(455, 144);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(25, 32);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox1.TabIndex = 11;
+            this.pictureBox1.TabStop = false;
+            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
+            // 
+            // WeatherPic
+            // 
+            this.WeatherPic.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.WeatherPic.BackColor = System.Drawing.Color.Transparent;
+            this.WeatherPic.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.WeatherPic.ErrorImage = null;
+            this.WeatherPic.Location = new System.Drawing.Point(663, 27);
+            this.WeatherPic.Margin = new System.Windows.Forms.Padding(0);
+            this.WeatherPic.Name = "WeatherPic";
+            this.WeatherPic.Size = new System.Drawing.Size(80, 80);
+            this.WeatherPic.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.WeatherPic.TabIndex = 10;
+            this.WeatherPic.TabStop = false;
+            // 
+            // OnlineStatus
+            // 
+            this.OnlineStatus.BackColor = System.Drawing.Color.Transparent;
+            this.OnlineStatus.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.OnlineStatus.ErrorImage = null;
+            this.OnlineStatus.Location = new System.Drawing.Point(32, 185);
+            this.OnlineStatus.Name = "OnlineStatus";
+            this.OnlineStatus.Size = new System.Drawing.Size(50, 48);
+            this.OnlineStatus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.OnlineStatus.TabIndex = 3;
+            this.OnlineStatus.TabStop = false;
+            this.OnlineStatus.Click += new System.EventHandler(this.OnlineStatus_Click);
+            // 
             // Main_UI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -384,11 +383,11 @@
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Main_UI_Load);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.Main_UI_Paint);
-            ((System.ComponentModel.ISupportInitialize)(this.OnlineStatus)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.WeatherPic)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.WeatherPic)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.OnlineStatus)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

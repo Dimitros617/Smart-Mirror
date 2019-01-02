@@ -1,24 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Net;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Collections;
-using System.Drawing.Imaging;
-using System.IO;
 
 namespace WindowsFormsApp2.Properties
 {
     public partial class Main_UI : Form
     {
-
+        Form load;
         LinkedList<Label> Notifikace; // pole noticikací 
         private Boolean lastConnectionBoolean; // hodnota zda při posledním tiku bylo aktivní připojení k internetu
         private String[] mesice = new String[12] { "Leden", "Únor", "Březen", "Duben", "Květen", "Červen", "Červenec", "Srpen", "Září", "Říjen", "Listopad", "Prosinec" };
@@ -26,6 +17,12 @@ namespace WindowsFormsApp2.Properties
         private String[] dnyCz = new String[7] { "PONDĚLÍ", "ÚTERÝ", "STŘEDA", "ČTVRTEK", "PÁTEK", "SOBOTA", "NEDĚLE" };
         WeatherData TeplotaData; // instance dat o počasí
         private int TeplotaLastUpdate; // v kolika minutách byl naposledy aktualizováno počasí
+
+        Calendar calendar;
+        MHD mhd;
+
+        int timeStart = 420; // počáteční čas vykreslování čar pro kalendář 
+        int timeKonec = 1240; // konečný čas převedený na minuty
 
         private int lastGraphicUpdate;
         public Boolean draw = true;
@@ -37,16 +34,18 @@ namespace WindowsFormsApp2.Properties
         Point mk;
 
         Brush transparentWhiteB = new SolidBrush(Color.FromArgb(128, 255, 255, 255));
-        Pen transparentWhite = new Pen(Color.FromArgb(128, Color.White), 3); // transparentní černá
+        Pen transparentWhite = new Pen(Color.FromArgb(128, Color.White), 3); // transparentní bílá
+        Pen white = new Pen(Color.White, 4); // transparentní bílá
 
         private int[] pointTime = new int[15] { 450, 505, 560, 615, 670, 725, 780, 835, 890, 945, 1000, 1055, 1110, 1165, 1210};
 
         Bitmap bm = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
 
-        public Main_UI()
+        public Main_UI(Form load)
         {
             InitializeComponent();
             Notifikace = new LinkedList<Label>();
+            this.load = load;
 
         }
 
@@ -61,7 +60,7 @@ namespace WindowsFormsApp2.Properties
             if (draw)
             {
                 e.Graphics.DrawImage(bm, 0, 0);
-                drawBackground(e);
+                drawCalendar(e);
                 // draw = false;
             }
             else
@@ -71,7 +70,7 @@ namespace WindowsFormsApp2.Properties
         }
 
 
-        private void drawBackground(PaintEventArgs e)
+        private void drawCalendar(PaintEventArgs e)
         {
 
             ds = new Point(DateDayOfWeek.Location.X, DateDayOfWeek.Location.Y + 100);
@@ -104,15 +103,14 @@ namespace WindowsFormsApp2.Properties
             {
                 drawPoint(e, "M", i);
             }
+
+            drawEvent(e);
         }
 
         private void drawPoint(PaintEventArgs e, String s, int time) {
 
-            int timeStart = 420;
-            int timeKonec = 1230;
+            double posunNaY = ((double)((double)dk.Y - (double)ds.Y) / (double)((double)timeKonec - (double)timeStart)) * (time - timeStart);
 
-            double a = (double)((double)dk.Y - (double)ds.Y) / (double)((double)timeKonec - (double)timeStart);
-            double posunNaY =  a * (time - timeStart);
 
             String cas = String.Format("{0:00}", time/60) + ":" + String.Format("{0:00}", time%60);
             Font drawFont = new Font("Century Gothic", 11);
@@ -129,6 +127,38 @@ namespace WindowsFormsApp2.Properties
                 e.Graphics.DrawString(cas, drawFont, new SolidBrush(Color.White), ms.X + 10, (int)posunNaY + ms.Y - 10, new StringFormat());
             }
 
+        }
+
+        private void drawEvent(PaintEventArgs e) {
+
+            Font Nazev = new Font("Century Gothic", 12, FontStyle.Bold);
+            Font Misto = new Font("Century Gothic", 9);
+            if (DateTime.Now.Hour * 60 + DateTime.Now.Minute < timeKonec)
+            {
+                foreach (Event u in calendar.DcalendarToday)
+                {
+                    double posunNaYstart = ((double)((double)dk.Y - (double)ds.Y) / (double)((double)timeKonec - (double)timeStart)) * ((u.start.Hour * 60 + u.start.Minute) - timeStart);
+                    double posunNaYkonec = ((double)((double)dk.Y - (double)ds.Y) / (double)((double)timeKonec - (double)timeStart)) * ((u.konec.Hour * 60 + u.konec.Minute) - timeStart);
+
+                    e.Graphics.DrawLine(white, ds.X, (int)posunNaYstart + ms.Y, ds.X, (int)posunNaYkonec + ms.Y);
+                    e.Graphics.DrawString(u.nazev, Nazev, new SolidBrush(Color.White), ds.X + 10, (int)posunNaYstart + ds.Y - 10, new StringFormat());
+
+                    if (u.ucebna != null)
+                    {
+                        e.Graphics.DrawString(u.ucebna, Nazev, new SolidBrush(Color.White), ds.X + 10, (int)posunNaYstart + ds.Y + 5, new StringFormat());
+                    }
+                    else
+                    {
+
+                    }
+                }
+            }
+            else
+            {
+
+
+
+            }
         }
 
 
@@ -233,11 +263,14 @@ namespace WindowsFormsApp2.Properties
                 Notify("nebylo možno nalést obrázek pripojení k internetu");
             }
 
-            //------------- Vykreslení grafiky pro kalendář
+            //------------- Vyvoření kalendáře a MHD
+
+            calendar = new Calendar(CheckForInternetConnection(), this);
+            mhd = new MHD(CheckForInternetConnection());
 
 
-
-            timer1.Start(); // zapnutí časovače pro aktualizovaní okna každých 10 ms
+            load.Close();;
+            timer1.Start(); // zapnutí časovače pro aktualizovaní okna každou 1 ms
             this.Refresh(); // obnovení okna
         }
 

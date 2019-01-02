@@ -114,11 +114,20 @@
     <Compile Include="CalendarGraphic.cs" />
     <Compile Include="MHD.cs" />
     <Compile Include="Event.cs" />
+    <Compile Include="Properties\Loading.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Properties\Loading.Designer.cs">
+      <DependentUpon>Loading.cs</DependentUpon>
+    </Compile>
     <Compile Include="Weather.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Loading.resx">
+      <DependentUpon>Loading.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -134,6 +143,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="packages.config" />
     <None Include="Properties\DataSources\Form1.datasource" />
@@ -167,6 +177,21 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Image\loading.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Image\logo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Image\tlak.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Image\vlhkost.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Image\vitr.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
