@@ -20,7 +20,7 @@ namespace WindowsFormsApp2
         public List<Event> DcalendarTomorrow;
         public List<Event> McalendarTomorrow;
 
-        private int lastOnlineUpdate;
+        private int lastUpdate = -1;
 
         private Main_UI form;
 
@@ -44,48 +44,22 @@ namespace WindowsFormsApp2
         public void UpdateCalendar(Boolean b)
         {
 
-            if (lastOnlineUpdate != DateTime.Now.Hour)
+            if (lastUpdate == DateTime.Now.AddHours(-1).Hour || lastUpdate == -1)
             {
                 try
                 {
-                    LoadFromCash();
-
+                    OnlineUpdate();
                 }
                 catch
                 {
-                    lastOnlineUpdate = DateTime.Now.Hour - 1;
-                    if (!b)
-
-                        form.Notify("Neexistuje cash a není připojení k internetu nelze načíst informace o kalendáři");
-                        //throw new Exception("Neexistuje cash a není připojení k internetu nelze načíst informace o kalendáři");
-                }
-
-                if (b)
-                {
                     try
                     {
-                        OnlineUpdateCalendar();
-
+                        LoadFromCash();
                     }
                     catch
                     {
-
-                        try
-                        {
-                            LoadFromCash();
-
-                        }
-                        catch
-                        {
-                            form.Notify("Neexistuje cash a nastala chyba při připojení k internetu nelze načíst informace o kalendáři");
-                            //throw new Exception("Neexistuje cash a nastala chyba při připojení k internetu nelze načíst informace o kalendáři");
-                        }
+                        form.Notify("Nelze stáhnout data z internetu ani načíst offline cash kalendáře");
                     }
-                }
-                else
-                {
-                    LoadFromCash();
-
                 }
 
                 SetTodayCalendar("D");
@@ -100,7 +74,7 @@ namespace WindowsFormsApp2
          * Metoda stáhne data z internetu a předá je třídě event která si data naparsuje
          * vrací chybu v případě že nelze stáhnout data z intrnetu
          **/
-        private void OnlineUpdateCalendar()
+        private void OnlineUpdate()
         {
             string CalendarAPI = "AIzaSyBtwsOiCij3QZSD3uSD5aZumuM5iUOXk94";
 
@@ -118,7 +92,7 @@ namespace WindowsFormsApp2
                     client.Encoding = Encoding.UTF8;
                     DcalendarData = (client.DownloadString("https://www.googleapis.com/calendar/v3/calendars/" + DcalendarAdress + "/events?key=" + CalendarAPI)).Split(new[] { "kind" }, StringSplitOptions.None);
                     McalendarData = (client.DownloadString("https://www.googleapis.com/calendar/v3/calendars/" + McalendarAdress + "/events?key=" + CalendarAPI)).Split(new[] { "kind" }, StringSplitOptions.None);
-                    lastOnlineUpdate = DateTime.Now.Hour;
+                    lastUpdate = DateTime.Now.Hour;
                     form.Notify("Kalendáře byly úspěšně staženy a aktualizovány");
                 }
             }
@@ -300,11 +274,10 @@ namespace WindowsFormsApp2
 
             TextWriter tw = new StreamWriter(path, false, Encoding.UTF8);
 
-            File.Delete(path);
-            File.Create(path);
+            if (!File.Exists(path))
+                File.Create(path);
 
-
-            tw.WriteLine(lastOnlineUpdate);
+            tw.WriteLine(lastUpdate);
 
             for (int i = 0; i < Dcalendar.Count; i++)
             {
@@ -331,6 +304,8 @@ namespace WindowsFormsApp2
             }
             tw.WriteLine("-");
             tw.Close();
+
+            form.Notify("Data kalendáře byly úspěšně uložena");
         }
 
 
@@ -344,7 +319,7 @@ namespace WindowsFormsApp2
             else
             {
                 TextReader reader = File.OpenText(path);
-                lastOnlineUpdate = Int32.Parse(reader.ReadLine());
+                lastUpdate = Int32.Parse(reader.ReadLine());
 
                 string s = reader.ReadLine().Trim();
                 while (!s.Equals("-"))

@@ -5,14 +5,16 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using WindowsFormsApp2.Properties;
 
 namespace WindowsFormsApp2
 {
     public class MHD
     {
         public int lastUpdate; // den v měsíci poseldního updatu
-        public DateTime NextTimeTram; // nejbližší stihnutelný spoje
-        public DateTime NextTimeBus;
+        public int NextTimeTram = -1; // nejbližší stihnutelný spoje
+        public int NextTimeBus = -1;
         public List<int> JizdniRadTram = new List<int>();
         public List<int> JizdniRadBus = new List<int>();
 
@@ -23,13 +25,15 @@ namespace WindowsFormsApp2
 
         public int Posun = 5; // posun casu min za kolik min mám hledat spoj
 
+        Main_UI form;
 
         /**
          * Konstriktor má vstupní parametr True nebo False zda je připojení k internetu nebo ne
          * Konstruktor pak vrací chybu pokud neexstuje cash soubor a zároveň není připojení k internetu
          **/
-        public MHD(Boolean b)
+        public MHD(Boolean b, Main_UI form)
         {
+            this.form = form;
             UpdateMHD(b);
         }
 
@@ -39,29 +43,30 @@ namespace WindowsFormsApp2
          **/
         public void UpdateMHD(Boolean b) {
 
-            if (lastUpdate != DateTime.Now.Hour)
+            if (lastUpdate == DateTime.Now.AddMinutes(-5).Minute || NextTimeTram == -1)
             {
                 try
                 {
-                    LoadFromCash();
+                    onlineUpdate();
                 }
                 catch
                 {
-                    lastUpdate = DateTime.Now.Day - 1;
-                    if (!b)
-                        throw new Exception("Neexistuje cash a není připojení k internetu nelze načíst informace");
+                    try
+                    {
+                        LoadFromCash();
+                    }
+                    catch
+                    {
+                        form.Notify("Nelze stáhnout data z internetu ani načíst offline cash");
+                    }
                 }
-
-                if (b)
-                    onlineUpdate();
-                else
-                    LoadFromCash();
-
             }
 
-            UpdateNextSpoj(JizdniRadTram, ref NextTimeTram);
-            UpdateNextSpoj(JizdniRadBus, ref NextTimeBus);
-
+            if (lastUpdate == DateTime.Now.AddMinutes(-1).Minute || NextTimeTram == -1)
+            {
+                UpdateNextSpoj(JizdniRadTram, ref NextTimeTram);
+                UpdateNextSpoj(JizdniRadBus, ref NextTimeBus);
+            }
         }
 
         /**
@@ -78,7 +83,7 @@ namespace WindowsFormsApp2
                 try
                 {
                     data = (client.DownloadString(tramAdress).Split(new[] { "<td class=\"hour\">" }, StringSplitOptions.None));
-
+                    form.Notify("MHD data byly úspěšně staženy");
                 }
                 catch (Exception)
                 {
@@ -153,7 +158,7 @@ namespace WindowsFormsApp2
          * Metoda naství gloubální proměnou budto NextTimeTram nebo NextTimeBus podle vstupní hodnoty NExt Spoj
          * Vstupní proměná list je jizdrni rad Budu nebo 
          **/
-        private void UpdateNextSpoj(List<int> list,ref DateTime NextSpoj) {
+        private void UpdateNextSpoj(List<int> list,ref int NextSpoj) {
 
             if (list.Count == 0) {
                 throw new Exception("Jízdní řády nejsou načteny prosím nejdříve proveďte update");
@@ -161,20 +166,23 @@ namespace WindowsFormsApp2
 
             int now = DateTime.Now.Hour * 60 + DateTime.Now.Minute;
 
-            if (now + Posun < list[list.Count - 1])
+            if (now + Posun < list[list.Count - 1]) // podminka pro konec dne pokud je cas mensi nez posledni spoj co jede dneska
             {
                 for (int i = 0; i < list.Count; i++)
                 {
                     if (now + Posun < list[i])
                     {
-                        NextSpoj = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, (int)(list[i] / 60), list[i] % 60, 0);
+                        int h = list[i] / 60;
+                        int m = list[i] % 60;
+                        int znacka = list[i];
+                        NextSpoj = list[i] - now;
                         break;
                     }
                 }
             }
             else
             {
-                NextSpoj = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, list[0] / 60, list[0] % 60, 0);
+                NextSpoj = (1439 - now) + list[0];
             }
             
 

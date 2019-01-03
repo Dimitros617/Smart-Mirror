@@ -133,6 +133,8 @@ namespace WindowsFormsApp2.Properties
 
             Font Nazev = new Font("Century Gothic", 12, FontStyle.Bold);
             Font Misto = new Font("Century Gothic", 9);
+
+            // Vykreslování eventů pro dnešek
             if (DateTime.Now.Hour * 60 + DateTime.Now.Minute < timeKonec)
             {
                 foreach (Event u in calendar.DcalendarToday)
@@ -141,8 +143,9 @@ namespace WindowsFormsApp2.Properties
                     double posunNaYkonec = ((double)((double)dk.Y - (double)ds.Y) / (double)((double)timeKonec - (double)timeStart)) * ((u.konec.Hour * 60 + u.konec.Minute) - timeStart);
 
                     int t = (DateTime.Now.Hour * 60 + DateTime.Now.Minute) - (u.start.Hour * 60 + u.start.Minute);
+                    String znamenko = t < 0 ? "- " : "+ ";
 
-                    String posunCasu = String.Format("{0:00}", t / 60) + ":" + String.Format("{0:00}", t % 60);
+                    String posunCasu = String.Format(znamenko + "{0:00}", Math.Abs(t) / 60) + ":" + String.Format("{0:00}", Math.Abs(t) % 60);
 
                     e.Graphics.DrawLine(white, ds.X, (int)posunNaYstart + ms.Y, ds.X, (int)posunNaYkonec + ms.Y);
                     e.Graphics.DrawString(u.nazev + " | " + posunCasu, Nazev, new SolidBrush(Color.White), ds.X + 10, (int)posunNaYstart + ds.Y - 10, new StringFormat());
@@ -157,8 +160,9 @@ namespace WindowsFormsApp2.Properties
                     double posunNaYkonec = ((double)((double)dk.Y - (double)ds.Y) / (double)((double)timeKonec - (double)timeStart)) * ((u.konec.Hour * 60 + u.konec.Minute) - timeStart);
 
                     int t = (DateTime.Now.Hour * 60 + DateTime.Now.Minute) - (u.start.Hour * 60 + u.start.Minute);
+                    String znamenko = t < 0 ? "- " : "+ ";
 
-                    String posunCasu = String.Format("{0:00}", t / 60) + ":" + String.Format("{0:00}", t % 60);
+                    String posunCasu = String.Format(znamenko + "{0:00}", Math.Abs(t) / 60) + ":" + String.Format("{0:00}", Math.Abs(t) % 60);
                     String nazev = posunCasu + " | " + u.nazev;
 
                     int stringSizeNazev = (int)e.Graphics.MeasureString(nazev, Nazev).Width;
@@ -169,7 +173,7 @@ namespace WindowsFormsApp2.Properties
                     if (u.ucebna != null)
                     e.Graphics.DrawString(u.ucebna, Misto, new SolidBrush(Color.White), ms.X - 10 - stringSizeMisto, (int)posunNaYstart + ds.Y + 8, new StringFormat());
                 }
-            }
+            } 
             else
             {
 
@@ -178,9 +182,9 @@ namespace WindowsFormsApp2.Properties
                     double posunNaYstart = ((double)((double)dk.Y - (double)ds.Y) / (double)((double)timeKonec - (double)timeStart)) * ((u.start.Hour * 60 + u.start.Minute) - timeStart);
                     double posunNaYkonec = ((double)((double)dk.Y - (double)ds.Y) / (double)((double)timeKonec - (double)timeStart)) * ((u.konec.Hour * 60 + u.konec.Minute) - timeStart);
 
-                    int t = ((DateTime.Now.Hour * 60 + DateTime.Now.Minute) - (u.start.Hour * 60 + u.start.Minute)) + 1439;
+                    int t = Math.Abs(((DateTime.Now.Hour * 60 + DateTime.Now.Minute) - (u.start.Hour * 60 + u.start.Minute)) + 1439);
 
-                    String posunCasu = String.Format("{0:00}", t / 60) + ":" + String.Format("{0:00}", t % 60);
+                    String posunCasu = String.Format("- " + "{0:00}", t / 60) + ":" + String.Format("{0:00}", t % 60);
 
                     e.Graphics.DrawLine(white, ds.X, (int)posunNaYstart + ms.Y, ds.X, (int)posunNaYkonec + ms.Y);
                     e.Graphics.DrawString(u.nazev + " | " + posunCasu, Nazev, new SolidBrush(Color.White), ds.X + 10, (int)posunNaYstart + ds.Y - 10, new StringFormat());
@@ -193,9 +197,9 @@ namespace WindowsFormsApp2.Properties
                     double posunNaYstart = ((double)((double)dk.Y - (double)ds.Y) / (double)((double)timeKonec - (double)timeStart)) * ((u.start.Hour * 60 + u.start.Minute) - timeStart);
                     double posunNaYkonec = ((double)((double)dk.Y - (double)ds.Y) / (double)((double)timeKonec - (double)timeStart)) * ((u.konec.Hour * 60 + u.konec.Minute) - timeStart);
 
-                    int t = ((DateTime.Now.Hour * 60 + DateTime.Now.Minute) - (u.start.Hour * 60 + u.start.Minute)) + 1439;
+                    int t = Math.Abs(((DateTime.Now.Hour * 60 + DateTime.Now.Minute) - (u.start.Hour * 60 + u.start.Minute)) + 1439);
 
-                    String posunCasu = String.Format("{0:00}", t / 60) + ":" + String.Format("{0:00}", t % 60);
+                    String posunCasu = String.Format("- " + "{0:00}", t / 60) + ":" + String.Format("{0:00}", t % 60);
                     String nazev = posunCasu + " | " + u.nazev;
 
                     int stringSizeNazev = (int)e.Graphics.MeasureString(nazev, Nazev).Width;
@@ -315,7 +319,7 @@ namespace WindowsFormsApp2.Properties
             //------------- Vyvoření kalendáře a MHD
 
             calendar = new Calendar(CheckForInternetConnection(), this);
-            mhd = new MHD(CheckForInternetConnection());
+            mhd = new MHD(CheckForInternetConnection(), this);
 
 
             load.Close();;
@@ -500,16 +504,16 @@ namespace WindowsFormsApp2.Properties
 
             mhd.UpdateMHD(CheckForInternetConnection());
 
-            if (mhd.NextTimeTram.Hour != 0)
-                TramLabel.Text = mhd.NextTimeTram.Hour + " hod";
+            if (mhd.NextTimeTram / 60 > 0)
+                TramLabel.Text = ((mhd.NextTimeTram / 60)) +" hod";
             else
-                TramLabel.Text = mhd.NextTimeTram.Minute + " min";
+                TramLabel.Text = ((mhd.NextTimeTram % 60)) + " min";
 
             String bus;
-            if (mhd.NextTimeBus.Hour != 0)
-                bus = mhd.NextTimeBus.Hour + " hod";
+            if (mhd.NextTimeBus / 60 > 0)
+                bus = ((mhd.NextTimeBus / 60)) + " hod";
             else
-                bus = mhd.NextTimeBus.Minute + " min";
+                bus = ((mhd.NextTimeBus % 60)) + " min";
 
             BusLabel.Text = bus;
 
