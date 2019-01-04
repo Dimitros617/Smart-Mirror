@@ -1,24 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Net;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Collections;
-using System.Drawing.Imaging;
-using System.IO;
 
 namespace WindowsFormsApp2.Properties
 {
     public partial class Main_UI : Form
     {
-
+        Form load;
         LinkedList<Label> Notifikace; // pole noticikací 
         private Boolean lastConnectionBoolean; // hodnota zda při posledním tiku bylo aktivní připojení k internetu
         private String[] mesice = new String[12] { "Leden", "Únor", "Březen", "Duben", "Květen", "Červen", "Červenec", "Srpen", "Září", "Říjen", "Listopad", "Prosinec" };
@@ -27,10 +18,35 @@ namespace WindowsFormsApp2.Properties
         WeatherData TeplotaData; // instance dat o počasí
         private int TeplotaLastUpdate; // v kolika minutách byl naposledy aktualizováno počasí
 
-        public Main_UI()
+        Calendar calendar;
+        MHD mhd;
+
+        int timeStart = 420; // počáteční čas vykreslování čar pro kalendář 
+        int timeKonec = 1240; // konečný čas převedený na minuty
+
+        private int lastGraphicUpdate;
+        public Boolean draw = true;
+
+        Point ds;
+        Point dk;
+
+        Point ms;
+        Point mk;
+
+        Brush transparentWhiteB = new SolidBrush(Color.FromArgb(128, 255, 255, 255));
+        Pen transparentWhite = new Pen(Color.FromArgb(128, Color.White), 3); // transparentní bílá
+        Pen white = new Pen(Color.White, 4); // transparentní bílá
+
+        private int[] pointTime = new int[15] { 450, 505, 560, 615, 670, 725, 780, 835, 890, 945, 1000, 1055, 1110, 1165, 1210};
+
+        Bitmap bm = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
+
+        public Main_UI(Form load)
         {
             InitializeComponent();
             Notifikace = new LinkedList<Label>();
+            this.load = load;
+
         }
 
         /**
@@ -40,52 +56,194 @@ namespace WindowsFormsApp2.Properties
         private void Main_UI_Paint(object sender, PaintEventArgs e)
         {
 
-            Form1_Paint(sender, e);
+            DoubleBuffered = true;
+            if (draw)
+            {
+                e.Graphics.DrawImage(bm, 0, 0);
+                drawCalendar(e);
+                // draw = false;
+            }
+            else
+            {
+                e.Graphics.DrawImage(bm, 0, 0);
+            }
+        }
+
+
+        private void drawCalendar(PaintEventArgs e)
+        {
+
+            ds = new Point(DateDayOfWeek.Location.X, DateDayOfWeek.Location.Y + 100);
+            dk = new Point(DateDayOfWeek.Location.X, Screen.PrimaryScreen.Bounds.Height - 150);
+
+            ms = new Point(Screen.PrimaryScreen.Bounds.Width - DateDayOfWeek.Location.X, DateDayOfWeek.Location.Y + 100);
+            mk = new Point(Screen.PrimaryScreen.Bounds.Width - DateDayOfWeek.Location.X, Screen.PrimaryScreen.Bounds.Height - 150);            
+
+
+            //e.Graphics.DrawEllipse(BigLine, ds.X, dk.Y, 20, 20);
+            e.Graphics.DrawLine(transparentWhite, ds, dk); // moje cara
+            e.Graphics.DrawLine(transparentWhite, ms, mk); // milanovo cara
+
+            e.Graphics.FillEllipse(transparentWhiteB, new Rectangle(ds.X - 5, ds.Y - 5, 10, 10)); // spodni muj bili puntik
+            e.Graphics.FillEllipse(transparentWhiteB, new Rectangle(ds.X - 10, ds.Y - 10, 20, 20)); // spodni muj bili tranparent
+            e.Graphics.FillEllipse(transparentWhiteB, new Rectangle(ms.X - 5, ms.Y - 5, 10, 10));// spodni milanovo bili puntik
+            e.Graphics.FillEllipse(transparentWhiteB, new Rectangle(ms.X - 10, ms.Y - 10, 20, 20));// spodni milanovo bili tranparent
+
+            e.Graphics.FillEllipse(transparentWhiteB, new Rectangle(ds.X - 5, dk.Y - 5, 10, 10)); // spodni muj bili puntik
+            e.Graphics.FillEllipse(transparentWhiteB, new Rectangle(ds.X - 10, dk.Y - 10, 20, 20)); // spodni muj bili tranparent
+            e.Graphics.FillEllipse(transparentWhiteB, new Rectangle(ms.X - 5, mk.Y - 5, 10, 10));// spodni milanovo bili puntik
+            e.Graphics.FillEllipse(transparentWhiteB, new Rectangle(ms.X - 10, mk.Y - 10, 20, 20));// spodni milanovo bili tranparent
+
+            foreach (int i in pointTime)
+            {
+                drawPoint(e, "D", i);
+            }
+
+            foreach (int i in pointTime)
+            {
+                drawPoint(e, "M", i);
+            }
+
+            drawEvent(e);
+        }
+
+        private void drawPoint(PaintEventArgs e, String s, int time) {
+
+            double posunNaY = ((double)((double)dk.Y - (double)ds.Y) / (double)((double)timeKonec - (double)timeStart)) * (time - timeStart);
+
+
+            String cas = String.Format("{0:00}", time/60) + ":" + String.Format("{0:00}", time%60);
+            Font drawFont = new Font("Century Gothic", 11);
+
+            if (s.ToLower().Equals("d"))
+            {
+
+                e.Graphics.FillEllipse(transparentWhiteB, new Rectangle(ds.X - 5, (int)posunNaY + ds.Y - 5, 10, 10)); 
+                e.Graphics.DrawString(cas, drawFont, new SolidBrush(Color.White), ds.X - 55, (int)posunNaY + ds.Y - 10, new StringFormat());
+            }
+            else {
+
+                e.Graphics.FillEllipse(transparentWhiteB, new Rectangle(ms.X - 5, (int)posunNaY + ms.Y - 5, 10, 10)); 
+                e.Graphics.DrawString(cas, drawFont, new SolidBrush(Color.White), ms.X + 10, (int)posunNaY + ms.Y - 10, new StringFormat());
+            }
 
         }
 
-        /**
-         * Metoda která namaluje čáru pod hodinamy nevyužitá
-         * 
-         **/
-        private void Form1_Paint(object sender, PaintEventArgs e) {
+        private void drawEvent(PaintEventArgs e) {
 
-            Pen pen = new Pen(Color.White, 2);
+            Font Nazev = new Font("Century Gothic", 12, FontStyle.Bold);
+            Font Misto = new Font("Century Gothic", 9);
 
-            int yposun = 110;
-            int xposun = 400;
-            Point p1 = new Point(cas.Location.X + 20, cas.Location.Y + yposun);
-            Point p2 = new Point(cas.Location.X + xposun, cas.Location.Y + yposun);
+            // Vykreslování eventů pro dnešek
+            if (DateTime.Now.Hour * 60 + DateTime.Now.Minute < timeKonec)
+            {
+                foreach (Event u in calendar.DcalendarToday)
+                {
+                    double posunNaYstart = ((double)((double)dk.Y - (double)ds.Y) / (double)((double)timeKonec - (double)timeStart)) * ((u.start.Hour * 60 + u.start.Minute) - timeStart);
+                    double posunNaYkonec = ((double)((double)dk.Y - (double)ds.Y) / (double)((double)timeKonec - (double)timeStart)) * ((u.konec.Hour * 60 + u.konec.Minute) - timeStart);
 
-          //  e.Graphics.DrawLine(pen, p1, p2);
+                    int t = (DateTime.Now.Hour * 60 + DateTime.Now.Minute) - (u.start.Hour * 60 + u.start.Minute);
+                    String znamenko = t < 0 ? "- " : "+ ";
+
+                    String posunCasu = String.Format(znamenko + "{0:00}", Math.Abs(t) / 60) + ":" + String.Format("{0:00}", Math.Abs(t) % 60);
+
+                    e.Graphics.DrawLine(white, ds.X, (int)posunNaYstart + ms.Y, ds.X, (int)posunNaYkonec + ms.Y);
+                    e.Graphics.DrawString(u.nazev + " | " + posunCasu, Nazev, new SolidBrush(Color.White), ds.X + 10, (int)posunNaYstart + ds.Y - 10, new StringFormat());
+                    if (u.ucebna != null)
+                    e.Graphics.DrawString(u.ucebna, Misto, new SolidBrush(Color.White), ds.X + 10, (int)posunNaYstart + ds.Y + 8, new StringFormat());
+
+                }
+
+                foreach (Event u in calendar.McalendarToday)
+                {
+                    double posunNaYstart = ((double)((double)dk.Y - (double)ds.Y) / (double)((double)timeKonec - (double)timeStart)) * ((u.start.Hour * 60 + u.start.Minute) - timeStart);
+                    double posunNaYkonec = ((double)((double)dk.Y - (double)ds.Y) / (double)((double)timeKonec - (double)timeStart)) * ((u.konec.Hour * 60 + u.konec.Minute) - timeStart);
+
+                    int t = (DateTime.Now.Hour * 60 + DateTime.Now.Minute) - (u.start.Hour * 60 + u.start.Minute);
+                    String znamenko = t < 0 ? "- " : "+ ";
+
+                    String posunCasu = String.Format(znamenko + "{0:00}", Math.Abs(t) / 60) + ":" + String.Format("{0:00}", Math.Abs(t) % 60);
+                    String nazev = posunCasu + " | " + u.nazev;
+
+                    int stringSizeNazev = (int)e.Graphics.MeasureString(nazev, Nazev).Width;
+                    int stringSizeMisto = (int)e.Graphics.MeasureString(u.ucebna, Misto).Width;
+
+                    e.Graphics.DrawLine(white, ms.X, (int)posunNaYstart + ms.Y, ms.X, (int)posunNaYkonec + ms.Y);
+                    e.Graphics.DrawString(nazev, Nazev, new SolidBrush(Color.White), ms.X - 10 - stringSizeNazev, (int)posunNaYstart + ds.Y - 10, new StringFormat());
+                    if (u.ucebna != null)
+                    e.Graphics.DrawString(u.ucebna, Misto, new SolidBrush(Color.White), ms.X - 10 - stringSizeMisto, (int)posunNaYstart + ds.Y + 8, new StringFormat());
+                }
+            } 
+            else
+            {
+
+                foreach (Event u in calendar.DcalendarTomorrow)
+                {
+                    double posunNaYstart = ((double)((double)dk.Y - (double)ds.Y) / (double)((double)timeKonec - (double)timeStart)) * ((u.start.Hour * 60 + u.start.Minute) - timeStart);
+                    double posunNaYkonec = ((double)((double)dk.Y - (double)ds.Y) / (double)((double)timeKonec - (double)timeStart)) * ((u.konec.Hour * 60 + u.konec.Minute) - timeStart);
+
+                    int t = Math.Abs(((DateTime.Now.Hour * 60 + DateTime.Now.Minute) - (u.start.Hour * 60 + u.start.Minute)) + 1439);
+
+                    String posunCasu = String.Format("- " + "{0:00}", t / 60) + ":" + String.Format("{0:00}", t % 60);
+
+                    e.Graphics.DrawLine(white, ds.X, (int)posunNaYstart + ms.Y, ds.X, (int)posunNaYkonec + ms.Y);
+                    e.Graphics.DrawString(u.nazev + " | " + posunCasu, Nazev, new SolidBrush(Color.White), ds.X + 10, (int)posunNaYstart + ds.Y - 10, new StringFormat());
+                    if (u.ucebna != null)
+                    e.Graphics.DrawString(u.ucebna, Misto, new SolidBrush(Color.White), ds.X + 10, (int)posunNaYstart + ds.Y + 8, new StringFormat());
+                }
+
+                foreach (Event u in calendar.McalendarTomorrow)
+                {
+                    double posunNaYstart = ((double)((double)dk.Y - (double)ds.Y) / (double)((double)timeKonec - (double)timeStart)) * ((u.start.Hour * 60 + u.start.Minute) - timeStart);
+                    double posunNaYkonec = ((double)((double)dk.Y - (double)ds.Y) / (double)((double)timeKonec - (double)timeStart)) * ((u.konec.Hour * 60 + u.konec.Minute) - timeStart);
+
+                    int t = Math.Abs(((DateTime.Now.Hour * 60 + DateTime.Now.Minute) - (u.start.Hour * 60 + u.start.Minute)) + 1439);
+
+                    String posunCasu = String.Format("- " + "{0:00}", t / 60) + ":" + String.Format("{0:00}", t % 60);
+                    String nazev = posunCasu + " | " + u.nazev;
+
+                    int stringSizeNazev = (int)e.Graphics.MeasureString(nazev, Nazev).Width;
+                    int stringSizeMisto = (int)e.Graphics.MeasureString(u.ucebna, Misto).Width;
+
+                    e.Graphics.DrawLine(white, ms.X, (int)posunNaYstart + ms.Y, ms.X, (int)posunNaYkonec + ms.Y);
+                    e.Graphics.DrawString(nazev, Nazev, new SolidBrush(Color.White), ms.X - 10 - stringSizeNazev, (int)posunNaYstart + ds.Y - 10, new StringFormat());
+                    if (u.ucebna != null)
+                    e.Graphics.DrawString(u.ucebna, Misto, new SolidBrush(Color.White), ms.X - 10 - stringSizeMisto, (int)posunNaYstart + ds.Y + 8, new StringFormat());
+                }
+
+            }
         }
+
 
         private void Main_UI_Load(object sender, EventArgs e)
         {
-         
+
+            draw = true;
+            lastGraphicUpdate = DateTime.Now.Minute;
+
             int s = Screen.PrimaryScreen.Bounds.Width;
             int v = Screen.PrimaryScreen.Bounds.Height;
 
             this.Location = new Point(0, 0); // nastavení okna aby začínalo v levo nahoře
             this.Size = new Size(s, v); // roztáhnout velikost okna na max
 
-            this.cas_sec.Location = new Point(cas.Location.X+260, cas.Location.Y + 10); // nastavit pozici labelu casu
+            this.cas_sec.Location = new Point(cas.Location.X + 260, cas.Location.Y + 10); // nastavit pozici labelu casu
 
             //-------------- set cas a datum | nastavení hodnot všech labelu ohledne času
 
-            cas.Text = String.Format("{0:00}", DateTime.Now.Hour) + ":" + String.Format("{0:00}", DateTime.Now.Minute); ;
+            cas.Text = String.Format("{0:00}", DateTime.Now.Hour) + ":" + String.Format("{0:00}", DateTime.Now.Minute); 
             cas_sec.Text = string.Format("{0:00}", DateTime.Now.Second);
 
-            DateMonth.Text = DateTime.Now.Day + ". " + mesice[DateTime.Now.Month-1];
+            DateMonth.Text = DateTime.Now.Day + ". " + mesice[DateTime.Now.Month - 1];
             DateDayOfWeek.Text = "" + dnyCz[IndexOf(dnyEn, "" + DateTime.Now.DayOfWeek)];
 
             //-------------- set Teplota
 
 
-            try // pokusit se o získání dat o počasí
-            {
-                TeplotaData = new WeatherData(); // vytvoření instance dat teploty
+            TeplotaData = new WeatherData(this); // vytvoření instance dat teploty
 
+            if (TeplotaData.temp != null)
+            {
                 TempLabel.Visible = true;
                 WeatherPic.Visible = true;
                 vlhkostLabel.Visible = true;
@@ -107,14 +265,14 @@ namespace WindowsFormsApp2.Properties
                 vitrLabel.Text = TeplotaData.windSpeed;
                 vlhkostLabel.Text = TeplotaData.vlhkost;
                 tlakLabel.Text = TeplotaData.tlak;
-                TeplotaLastUpdate = DateTime.Now.Minute ;
+                TeplotaLastUpdate = DateTime.Now.Minute;
                 mestoLabel.Text = TeplotaData.mesto.ToUpper();
 
-                Notify("Počasí bylo úspěšně aktualizováno");
+
             }
-            catch // v případě chyby při získávání dat o počasí se vyhodí notifikace a viz níže
+            else // v případě chyby při získávání dat o počasí se vyhodí notifikace a viz níže
             {
-                Notify("Nastala chyba při načítání počasí");
+
                 TempLabel.Visible = false;
                 WeatherPic.Visible = false;
                 vlhkostLabel.Visible = false;
@@ -131,10 +289,7 @@ namespace WindowsFormsApp2.Properties
                 label8.Visible = false;
 
             }
-            
 
-
-            
 
             //-------------- Nastavení obrázku stavu připojení k internetu
 
@@ -145,7 +300,7 @@ namespace WindowsFormsApp2.Properties
                 if (CheckForInternetConnection())
                 {
                     lastConnectionBoolean = true;
-                    image = Image.FromFile(@"..\\Image\\online.png");    
+                    image = Image.FromFile(@"..\\Image\\online.png");
                 }
                 else
                 {
@@ -155,23 +310,28 @@ namespace WindowsFormsApp2.Properties
 
                 OnlineStatus.Image = image;
             }
-            catch {
+            catch
+            {
 
                 Notify("nebylo možno nalést obrázek pripojení k internetu");
             }
 
-            Console.WriteLine("-------------NECO---------------");
-            Console.WriteLine();
-            Console.WriteLine(CheckForInternetConnection());
-            
-            timer1.Start(); // zapnutí časovače pro aktualizovaní okna každých 10 ms
+            //------------- Vyvoření kalendáře a MHD
+
+            calendar = new Calendar(CheckForInternetConnection(), this);
+            mhd = new MHD(CheckForInternetConnection(), this);
+
+
+            load.Close();;
+            timer1.Start(); // zapnutí časovače pro aktualizovaní okna každou 1 ms
             this.Refresh(); // obnovení okna
         }
 
         /**
          * Při kliknutí na čas se aplikace zavře
          **/
-        private void cas_Click(object sender, EventArgs e){
+        private void cas_Click(object sender, EventArgs e)
+        {
 
             this.Close();
 
@@ -196,14 +356,17 @@ namespace WindowsFormsApp2.Properties
             }
         }
 
-        private void cas_sec_Click(object sender, EventArgs e){
+        private void cas_sec_Click(object sender, EventArgs e)
+        {
         }
 
         /**
          * Hlavní metoda co všechno aktualizuje každých 10 ms
          **/
-        private void timer1_Tick(object sender, EventArgs e)
+        private void timer1_Tick(object sender, EventArgs e) // hlavní timer
         {
+            if (lastGraphicUpdate != DateTime.Now.Minute)
+                draw = true;
 
             //--- nastavení všech hodnot ohledně času a data
             cas_sec.Text = string.Format("{0:00}", DateTime.Now.Second);
@@ -213,58 +376,57 @@ namespace WindowsFormsApp2.Properties
 
             //--- Temperature
 
-            if ((DateTime.Now.Minute - TeplotaLastUpdate) >= 5 && lastConnectionBoolean || (DateTime.Now.Minute - TeplotaLastUpdate) < 0 && lastConnectionBoolean) // pokud poslední čas aktualizace byl před 5 min nebo v celou hodinu
-            { // každých 5 min se pokusit o obnovení dat počasí
-                try
-                {
-                    TeplotaData.CheckWeather(); // hlavní aktualizační metoda která se pousí obnovit data o počasí 
 
-                    TempLabel.Visible = true;
-                    WeatherPic.Visible = true;
-                    vlhkostLabel.Visible = true;
-                    vitrLabel.Visible = true;
-                    tlakLabel.Visible = true;
-                    mestoLabel.Visible = true;
-                    pictureBox1.Visible = true;
-                    pictureBox2.Visible = true;
-                    pictureBox3.Visible = true;
-                    label2.Visible = true;
-                    label3.Visible = true;
-                    label5.Visible = true;
-                    label7.Visible = true;
-                    label8.Visible = true;
+            TeplotaData.UpdateWeather(); // hlavní aktualizační metoda která se pousí obnovit data o počasí 
 
-                    //--- inicializace a obnovení všech hodnot o počasí
-                    TempLabel.Text = "" + (int)(double.Parse(TeplotaData.temp.Replace('.', ','))) + "°";
-                    WeatherPic.Image = Image.FromFile(@"..\\Image\\Weather\\" + TeplotaData.icon + ".png");
-                    vitrLabel.Text = TeplotaData.windSpeed;
-                    vlhkostLabel.Text = TeplotaData.vlhkost;
-                    tlakLabel.Text = TeplotaData.tlak;
-                    mestoLabel.Text = TeplotaData.mesto;
+            if (TeplotaData.temp != null)
+            {
+                TempLabel.Visible = true;
+                WeatherPic.Visible = true;
+                vlhkostLabel.Visible = true;
+                vitrLabel.Visible = true;
+                tlakLabel.Visible = true;
+                mestoLabel.Visible = true;
+                pictureBox1.Visible = true;
+                pictureBox2.Visible = true;
+                pictureBox3.Visible = true;
+                label2.Visible = true;
+                label3.Visible = true;
+                label5.Visible = true;
+                label7.Visible = true;
+                label8.Visible = true;
 
-                    TeplotaLastUpdate = DateTime.Now.Minute; // přepsat čas poslední aktualizace
-                    Notify("Počasí bylo úspěšně aktualizováno");
-                }
-                catch // případ kdy není možno aktualizovat data z internetu
-                {
-                    Notify("Nastala chyba při načítání dat počasí Opětovný pokus za 10 min");
-                    TempLabel.Text = "";
-                    TempLabel.Visible = false;
-                    WeatherPic.Visible = false;
-                    vlhkostLabel.Visible = false;
-                    vitrLabel.Visible = false;
-                    tlakLabel.Visible = false;
-                    mestoLabel.Visible = false;
-                    pictureBox1.Visible = false;
-                    pictureBox2.Visible = false;
-                    pictureBox3.Visible = false;
-                    label2.Visible = false;
-                    label3.Visible = false;
-                    label5.Visible = false;
-                    label7.Visible = false;
-                    label8.Visible = false;
-                }
+                //--- inicializace a obnovení všech hodnot o počasí
+                TempLabel.Text = "" + (int)(double.Parse(TeplotaData.temp.Replace('.', ','))) + "°";
+                WeatherPic.Image = Image.FromFile(@"..\\Image\\Weather\\" + TeplotaData.icon + ".png");
+                vitrLabel.Text = TeplotaData.windSpeed;
+                vlhkostLabel.Text = TeplotaData.vlhkost;
+                tlakLabel.Text = TeplotaData.tlak;
+                mestoLabel.Text = TeplotaData.mesto;
+
+                TeplotaLastUpdate = DateTime.Now.Minute; // přepsat čas poslední aktualizace
+
             }
+            else // případ kdy není možno aktualizovat data z internetu
+            {
+
+                TempLabel.Text = "";
+                TempLabel.Visible = false;
+                WeatherPic.Visible = false;
+                vlhkostLabel.Visible = false;
+                vitrLabel.Visible = false;
+                tlakLabel.Visible = false;
+                mestoLabel.Visible = false;
+                pictureBox1.Visible = false;
+                pictureBox2.Visible = false;
+                pictureBox3.Visible = false;
+                label2.Visible = false;
+                label3.Visible = false;
+                label5.Visible = false;
+                label7.Visible = false;
+                label8.Visible = false;
+            }
+
 
 
             //--- Notifikace vykreslování notifikací
@@ -291,8 +453,9 @@ namespace WindowsFormsApp2.Properties
 
                     }
                 }
-                catch { // neznámý důvod vyhazuje u všech notifikací chybu ano prasácké ošetření neznámé chyby
-                   // Notify("Chyba při notifikaci");
+                catch
+                { // neznámý důvod vyhazuje u všech notifikací chybu ano prasácké ošetření neznámé chyby
+                  // Notify("Chyba při notifikaci");
                 }
 
             //--- Internet connection
@@ -305,22 +468,22 @@ namespace WindowsFormsApp2.Properties
             {
                 if (CheckForInternetConnection())
                 {
-                        image = Image.FromFile(@"..\\Image\\online.png");
-                        lastConnectionBoolean = true;
-                   
+                    image = Image.FromFile(@"..\\Image\\online.png");
+                    lastConnectionBoolean = true;
+
 
                 }
                 else
                 {
-                        image = Image.FromFile(@"..\\Image\\offline.png");
-                        lastConnectionBoolean = false;
-              
+                    image = Image.FromFile(@"..\\Image\\offline.png");
+                    lastConnectionBoolean = false;
+
                 }
 
 
 
                 OnlineStatus.Image = image; // nastavení obrázku
-                
+
             }
             catch
             {
@@ -333,6 +496,28 @@ namespace WindowsFormsApp2.Properties
             if (!connection && lastConnectionBoolean || connection && !lastConnectionBoolean)
                 Notify("Došlo ke změně stavu sítě");
 
+            //--- Update Kalendář
+
+            calendar.UpdateCalendar(CheckForInternetConnection());
+
+            //--- Update MHD
+
+            mhd.UpdateMHD(CheckForInternetConnection());
+
+            if (mhd.NextTimeTram / 60 > 0)
+                TramLabel.Text = ((mhd.NextTimeTram / 60)) +" hod";
+            else
+                TramLabel.Text = ((mhd.NextTimeTram % 60)) + " min";
+
+            String bus;
+            if (mhd.NextTimeBus / 60 > 0)
+                bus = ((mhd.NextTimeBus / 60)) + " hod";
+            else
+                bus = ((mhd.NextTimeBus % 60)) + " min";
+
+            BusLabel.Text = bus;
+
+            BusLabel.Location = new Point(pictureBox4.Location.X - 5 - GetWidthOfString(bus, BusLabel.Font), BusLabel.Location.Y);
             this.Refresh();// hlavní refresh celého formu
         }
 
@@ -349,24 +534,43 @@ namespace WindowsFormsApp2.Properties
         /**
          * Hlavní metoda pro notifikace
          **/
-        private void Notify(String s) {
+        public void Notify(String s)
+        {
 
             Console.WriteLine(s); // vypsání notifikace do konzole
 
-            int locx = Screen.PrimaryScreen.Bounds.Width/2; // nastavení pozice notifikace na střed
+            Font font = new Font("Century Gothic", 8);
+
+            int locx = Screen.PrimaryScreen.Bounds.Width / 2 - GetWidthOfString(s, font) /2; // nastavení pozice notifikace na střed
             int locy = Notifikace.Count == 0 ? 20 : Notifikace.ElementAt(0).Location.Y + 20; // vypočítání Y pozice všech notifikací aby další byla pod předchozí
 
             Label label = new Label();
             label.Location = new System.Drawing.Point(locx, locy);
             label.Name = "label";
-            label.Text = s;
+            label.Text = s.ToUpper();
             label.AutoSize = true;
             label.ForeColor = System.Drawing.Color.White;
             label.TabIndex = 300;
             label.TextAlign = ContentAlignment.MiddleCenter;
+            label.Font = font;
             this.Controls.Add(label as Control); // vykreslení notifikace
             Notifikace.AddFirst(label); // přidání notifikace do pole
 
+        }
+
+        private int GetWidthOfString(string str, Font font)
+        {
+            Bitmap objBitmap = default(Bitmap);
+            Graphics objGraphics = default(Graphics);
+
+            objBitmap = new Bitmap(500, 200);
+            objGraphics = Graphics.FromImage(objBitmap);
+
+            SizeF stringSize = objGraphics.MeasureString(str, font);
+
+            objBitmap.Dispose();
+            objGraphics.Dispose();
+            return (int)stringSize.Width;
         }
 
         private void DateDayOfWeek_Click(object sender, EventArgs e)

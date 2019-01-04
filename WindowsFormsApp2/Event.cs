@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WindowsFormsApp2
 {
@@ -33,7 +29,15 @@ namespace WindowsFormsApp2
 
             }
 
-            //Console.WriteLine("AHOJ");
+        }
+
+        public Event(string naz, string loc, string st, string kon) {
+
+            nazev = naz;
+            ucebna = loc;
+            start = getDate(st);
+            konec = getDate(kon);
+
         }
 
         /**

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WindowsFormsApp2.Properties;
@@ -18,9 +15,14 @@ namespace WindowsFormsApp2
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Form form = new Main_UI();
-            Calendar calendar = new Calendar();
-            //Application.Run(form);
+            Form load = new Loading();
+
+            load.Show();
+            Task wait = Task.Delay(1000);
+            wait.Wait();
+
+            Form form = new Main_UI(load);
+            Application.Run(form);
 
         }
     }
